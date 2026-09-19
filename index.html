@@ -1,0 +1,2577 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>MEDCALC — Clinical Medication Dose Calculator & Database</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-light: #e0f2fe;
+      --accent: #0d9488;
+      --accent-light: #ccfbf1;
+      --bg: #f0f7fa;
+      --bg-gradient: linear-gradient(180deg, #e6f4f8 0%, #f1f8fa 100%);
+      --card-bg: #ffffff;
+      --card-border: #bae6fd;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #cbd5e1;
+      --danger: #e11d48;
+      --danger-bg: #fff1f2;
+      --danger-border: #fecdd3;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --success-border: #a7f3d0;
+      --unverified: #64748b;
+      --shadow-sm: 0 1px 3px rgba(14, 116, 144, 0.08);
+      --shadow-md: 0 4px 12px rgba(14, 116, 144, 0.12);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body.dark-mode {
+      --primary: #38bdf8;
+      --primary-dark: #0284c7;
+      --primary-light: #082f49;
+      --accent: #2dd4bf;
+      --accent-light: #134e4a;
+      --bg: #0b1929;
+      --bg-gradient: linear-gradient(180deg, #091422 0%, #0d1e33 100%);
+      --card-bg: #13253a;
+      --card-border: #1e3a5f;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #1e3a5f;
+      --danger: #fb7185;
+      --danger-bg: #4c0519;
+      --danger-border: #881337;
+      --warning: #fbbf24;
+      --warning-bg: #451a03;
+      --warning-border: #78350f;
+      --success: #34d399;
+      --success-bg: #064e3b;
+      --success-border: #065f46;
+      --unverified: #94a3b8;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 14px rgba(0,0,0,0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 75px;
+      min-height: 100vh;
+    }
+
+    header.app-header {
+      background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
+      color: #ffffff;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);
+    }
+
+    .brand-box { display: flex; align-items: center; gap: 10px; }
+    .brand-box h1 { font-size: 1.25rem; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; }
+    .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; }
+    
+    .theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.35); }
+
+    .container { max-width: 920px; margin: 0 auto; padding: 16px; }
+
+    .nav-desktop {
+      display: none;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      gap: 6px;
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+    }
+
+    @media (min-width: 768px) {
+      .nav-desktop { display: flex; justify-content: center; }
+      body { padding-bottom: 25px; }
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      color: var(--primary-dark);
+      background: var(--primary-light);
+    }
+    body.dark-mode .nav-btn:hover, body.dark-mode .nav-btn.active {
+      color: #ffffff;
+      background: var(--primary-light);
+    }
+
+    .nav-bottom {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 4px;
+      z-index: 50;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+    }
+    @media (min-width: 768px) { .nav-bottom { display: none; } }
+
+    .nav-tab {
+      background: none; border: none; color: var(--text-muted);
+      display: flex; flex-direction: column; align-items: center;
+      font-size: 0.68rem; padding: 4px; cursor: pointer; flex: 1;
+      font-weight: 500;
+    }
+    .nav-tab span.icon { font-size: 1.15rem; margin-bottom: 2px; }
+    .nav-tab.active { color: var(--primary); font-weight: 700; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid var(--primary-light);
+      padding-bottom: 8px;
+    }
+    body.dark-mode .card-title { color: var(--primary); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    @media (min-width: 620px) {
+      .grid-2 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(3, 1fr); }
+      .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+    label { font-size: 0.82rem; font-weight: 700; margin-bottom: 5px; color: var(--text); }
+    
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.92rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18);
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 18px; border-radius: 8px; font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-primary { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; }
+    .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-secondary { background: var(--card-bg); border-color: var(--border); color: var(--text); }
+    .btn-secondary:hover { background: var(--primary-light); color: var(--primary-dark); }
+    .btn-danger { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: #fff; }
+    .btn-warning { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #fff; }
+    .btn-success { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 0.78rem; border-radius: 6px; }
+    .btn-block { width: 100%; }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem;
+      font-weight: 800; padding: 3px 9px; border-radius: 12px; text-transform: uppercase;
+    }
+    .badge-verified { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .badge-needs-review { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+    .badge-unverified { background: #f1f5f9; color: var(--unverified); border: 1px solid var(--border); }
+    .badge-error { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+
+    .alert {
+      padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 0.86rem;
+      display: flex; flex-direction: column; gap: 4px; line-height: 1.45;
+    }
+    .alert-danger { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger); font-weight: 600; }
+    .alert-warning { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning); }
+    .alert-info { background: #e0f2fe; border: 1px solid #7dd3fc; color: #0369a1; }
+    body.dark-mode .alert-info { background: #082f49; border-color: #0369a1; color: #7dd3fc; }
+
+    .stat-card {
+      padding: 14px; border-radius: 10px; border: 1px solid var(--card-border);
+      background: var(--card-bg); text-align: center; box-shadow: var(--shadow-sm);
+    }
+    .stat-val { font-size: 1.6rem; font-weight: 800; margin-bottom: 2px; color: var(--primary); }
+    .stat-lbl { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+
+    .calc-step-box {
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px;
+      padding: 14px; margin-top: 12px; font-size: 0.88rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    body.dark-mode .calc-step-box { background: #0a131f; border-color: #1e3a5f; }
+    .calc-step-line { margin-bottom: 5px; }
+    .calc-step-line strong { color: var(--primary); }
+
+    .final-result-card {
+      border: 2px solid var(--primary);
+      background: linear-gradient(180deg, rgba(2, 132, 199, 0.05) 0%, rgba(13, 148, 136, 0.08) 100%);
+      border-radius: 14px; padding: 22px; text-align: center; margin-top: 16px;
+      box-shadow: 0 6px 20px rgba(2, 132, 199, 0.12);
+    }
+    .final-result-val { font-size: 2.1rem; font-weight: 800; color: var(--primary-dark); margin: 6px 0; }
+    body.dark-mode .final-result-val { color: var(--primary); }
+    .final-result-sub { font-size: 1.05rem; font-weight: 700; color: var(--text-muted); }
+
+    .med-item {
+      padding: 14px; border: 1px solid var(--card-border); border-radius: 10px;
+      margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;
+      background: var(--card-bg); transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .med-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .med-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .med-name { font-weight: 800; font-size: 1.05rem; color: var(--primary-dark); }
+    body.dark-mode .med-name { color: var(--primary); }
+    .med-sub { font-size: 0.82rem; color: var(--text-muted); }
+    .med-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+    .diff-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
+    .diff-table th, .diff-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+    .diff-table th { background: var(--primary-light); color: var(--primary-dark); }
+    .diff-old { background: var(--danger-bg); color: var(--danger); text-decoration: line-through; }
+    .diff-new { background: var(--success-bg); color: var(--success); font-weight: 700; }
+
+    .toast-container { position: fixed; top: 75px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      padding: 12px 18px; border-radius: 10px; background: #0f172a; color: #ffffff;
+      font-size: 0.88rem; box-shadow: 0 8px 24px rgba(0,0,0,0.25); display: flex;
+      align-items: center; gap: 12px; animation: slideIn 0.25s ease-out; max-width: 340px;
+    }
+    .toast-undo { background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.78rem; font-weight: bold; }
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px); z-index: 100; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-content {
+      background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px;
+      width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; padding: 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 14px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); padding-bottom: 10px; }
+    .modal-header h3 { font-size: 1.15rem; color: var(--primary-dark); font-weight: 800; }
+    body.dark-mode .modal-header h3 { color: var(--primary); }
+    .modal-close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); }
+
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .app-header, .nav-desktop, .nav-bottom, .btn, .theme-toggle-btn, .toast-container, .modal-backdrop { display: none !important; }
+      .container { max-width: 100%; padding: 0; margin: 0; }
+      .card { border: 1px solid #999; box-shadow: none; margin-bottom: 12px; page-break-inside: avoid; }
+      .print-only { display: block !important; }
+    }
+    .print-only { display: none; }
+  </style>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196F3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MedCal-DrLuan">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand-box">
+      <span style="font-size: 1.6rem;">🩺</span>
+      <div>
+        <h1>MEDCALC</h1>
+        <span>Clinical Dose Calculator &amp; Evidence-Based Database</span>
+      </div>
+    </div>
+    <div>
+      <button class="theme-toggle-btn" id="btnThemeToggle" title="Đổi chế độ sáng / tối">🌓 Giao diện</button>
+    </div>
+  </header>
+
+  <nav class="nav-desktop">
+    <button class="nav-btn active" onclick="switchTab('tab-dashboard')">📊 Tổng Quan</button>
+    <button class="nav-btn" onclick="switchTab('tab-calculator')">🧮 Tính Liều</button>
+    <button class="nav-btn" onclick="switchTab('tab-reconstitution')">💧 Pha Thuốc</button>
+    <button class="nav-btn" onclick="switchTab('tab-database')">💊 Database</button>
+    <button class="nav-btn" onclick="switchTab('tab-add-med')">➕ Thêm Thuốc</button>
+    <button class="nav-btn" onclick="switchTab('tab-history')">🕘 Lịch Sử</button>
+    <button class="nav-btn" onclick="switchTab('tab-audit')">🔍 Data Audit</button>
+    <button class="nav-btn" onclick="switchTab('tab-ai-assistant')">🤖 AI Assistant</button>
+    <button class="nav-btn" onclick="switchTab('tab-backup')">💾 Backup &amp; Restore</button>
+    <button class="nav-btn" onclick="switchTab('tab-settings')">⚙️ Cài Đặt</button>
+  </nav>
+
+  <div class="container">
+
+    <!-- TAB 1: DASHBOARD -->
+    <section id="tab-dashboard" class="tab-content active">
+      <div class="card">
+        <div class="card-title">📊 Bảng Thống Kê Dữ Liệu Thuốc</div>
+        <div class="grid-4" style="margin-bottom: 16px;">
+          <div class="stat-card">
+            <div class="stat-val" id="dashTotalMeds">0</div>
+            <div class="stat-lbl">💊 Tổng số thuốc</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: var(--success);" id="dashVerified">0</div>
+            <div class="stat-lbl">✓ Đã xác minh</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: var(--warning);" id="dashNeedsReview">0</div>
+            <div class="stat-lbl">⚠ Cần kiểm tra</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color: var(--danger);" id="dashError">0</div>
+            <div class="stat-lbl">✕ Có lỗi dữ liệu</div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <button class="btn btn-primary" onclick="switchTab('tab-calculator')">🧮 TÍNH LIỀU NGAY</button>
+          <button class="btn btn-secondary" onclick="switchTab('tab-database')">💊 DATABASE THUỐC</button>
+          <button class="btn btn-secondary" onclick="openAddMedicationForm()">➕ THÊM THUỐC MỚI</button>
+          <button class="btn btn-secondary" onclick="switchTab('tab-backup')">💾 SAO LƯU / PHỤC HỒI</button>
+        </div>
+      </div>
+
+      <div class="alert alert-warning">
+        <strong>⚠️ NGUYÊN TẮC AN TOÀN LÂM SÀNG:</strong>
+        <span>100% dữ liệu liều phải lấy từ nguồn được xác minh. Không tự ý dùng dữ liệu giả định. MEDCALC chỉ thực hiện công thức toán học dựa trên dữ liệu do bác sĩ/dược sĩ nhập và kiểm chứng.</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📌 Thao tác nhanh</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-sm btn-secondary" onclick="insertDemoClinicalData()">📥 Tải Lại Dữ Liệu Mẫu (Dược Thư QG)</button>
+          <button class="btn btn-sm btn-danger" onclick="confirmWipeDatabase()">🗑 Xóa Sạch Database</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: TÍNH LIỀU -->
+    <section id="tab-calculator" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>1. Bệnh Nhân &amp; Chọn Thuốc</span>
+          <button class="btn btn-sm btn-secondary" onclick="resetDoseForm()">Làm mới form</button>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="calcMedSelect">💊 Chọn Thuốc Từ Database (Tùy chọn):</label>
+            <select id="calcMedSelect" onchange="onSelectMedicationForCalc(this.value)">
+              <option value="">-- Nhập thông số thủ công tự do --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="patientWeight">⚖️ Cân Nặng (kg) <span style="color: var(--danger);">*</span>:</label>
+            <input type="number" id="patientWeight" step="0.1" min="0.1" placeholder="VD: 15.5">
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="patientAge">Tuổi:</label>
+            <input type="text" id="patientAge" placeholder="VD: 3 tuổi">
+          </div>
+          <div class="form-group">
+            <label for="patientHeight">Chiều Cao (cm):</label>
+            <input type="number" id="patientHeight" step="1" placeholder="VD: 95">
+          </div>
+          <div class="form-group">
+            <label for="patientGender">Giới Tính:</label>
+            <select id="patientGender">
+              <option value="">Chưa xác định</option>
+              <option value="male">Nam</option>
+              <option value="female">Nữ</option>
+            </select>
+          </div>
+        </div>
+        <div id="calcMedMetadataNotice"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">2. Chế Độ &amp; Thông Số Liều</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="calcDoseType">Kiểu Tính Liều <span style="color: var(--danger);">*</span>:</label>
+            <select id="calcDoseType" onchange="onDoseTypeChanged()">
+              <option value="mg_kg_dose">1. mg/kg/lần</option>
+              <option value="mg_kg_day">2. mg/kg/ngày</option>
+              <option value="mg_dose">3. mg/lần (Không nhân cân nặng)</option>
+              <option value="mg_day">4. mg/ngày (Không nhân cân nặng)</option>
+              <option value="fixed">5. Liều Cố Định (Fixed)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lblDoseValue" for="calcDoseValue">Mức Liều: <span style="color: var(--danger);">*</span></label>
+            <input type="number" id="calcDoseValue" step="0.1" placeholder="VD: 10">
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="calcFrequency">Số Lần Dùng/Ngày:</label>
+            <input type="number" id="calcFrequency" min="1" step="1" value="2" placeholder="VD: 2 hoặc 3">
+          </div>
+          <div class="form-group">
+            <label for="calcMaxPerDose">Giới Hạn Tối Đa/Lần (mg):</label>
+            <input type="number" id="calcMaxPerDose" placeholder="Tùy chọn">
+          </div>
+          <div class="form-group">
+            <label for="calcMaxPerDay">Giới Hạn Tối Đa/Ngày (mg):</label>
+            <input type="number" id="calcMaxPerDay" placeholder="Tùy chọn">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">3. Dạng Bào Chế (Viên / Lỏng)</div>
+        <div class="grid-2">
+          <div style="border: 1.5px dashed var(--border); padding: 12px; border-radius: 10px; background: rgba(2, 132, 199, 0.02);">
+            <strong>Dạng Viên Nén / Nang</strong>
+            <div class="form-group" style="margin-top: 8px;">
+              <label for="calcTabletStrength">Hàm Lượng Mỗi Viên (mg/viên):</label>
+              <input type="number" id="calcTabletStrength" step="0.1" placeholder="VD: 250 hoặc 500">
+            </div>
+          </div>
+          <div style="border: 1.5px dashed var(--border); padding: 12px; border-radius: 10px; background: rgba(13, 148, 136, 0.02);">
+            <strong>Dạng Dung Dịch / Siro / Hỗn Dịch</strong>
+            <div class="grid-2" style="margin-top: 8px;">
+              <div class="form-group">
+                <label for="calcLiquidMg">mg thuốc:</label>
+                <input type="number" id="calcLiquidMg" step="0.1" placeholder="VD: 100 hoặc 250">
+              </div>
+              <div class="form-group">
+                <label for="calcLiquidMl">trong số mL:</label>
+                <input type="number" id="calcLiquidMl" step="0.1" placeholder="VD: 5">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 14px;">
+          <button class="btn btn-primary btn-block" style="padding: 14px; font-size: 1rem;" onclick="executeDoseCalculation()">🧮 THỰC HIỆN TÍNH LIỀU</button>
+        </div>
+      </div>
+
+      <div id="calcOutputArea" style="display: none;">
+        <div class="card" style="border-top: 4px solid var(--primary);">
+          <div class="card-title">
+            <span>📋 Các Bước Tính Toán Chi Tiết</span>
+          </div>
+          <div id="calcWarningNotice"></div>
+          <div class="calc-step-box" id="calcStepsText"></div>
+          <div class="final-result-card">
+            <div style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px;">KẾT QUẢ CUỐI CÙNG</div>
+            <div class="final-result-val" id="finalResultDose">-</div>
+            <div class="final-result-sub" id="finalResultDaily">-</div>
+            <div id="finalResultPhysical" style="margin-top: 8px; font-weight: 700; color: var(--text);"></div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 14px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn btn-secondary" onclick="copyDoseResultToClipboard()">📋 SAO CHÉP KẾT QUẢ</button>
+            <button class="btn btn-secondary" onclick="printDoseResult()">🖨 IN PHIẾU TÍNH LIỀU</button>
+            <button class="btn btn-secondary" onclick="exportDoseTxt()">📄 XUẤT FILE TXT</button>
+          </div>
+          <div class="alert alert-warning" style="margin-top: 14px; font-size: 0.8rem;">
+            ⚠️ Kết quả phụ thuộc vào dữ liệu thuốc và thông tin đầu vào. Bác sĩ/dược sĩ cần kiểm tra lại tên thuốc, hàm lượng, chỉ định, tuổi, cân nặng, đường dùng, chức năng thận/gan và nguồn dữ liệu trước khi sử dụng. Không tự ý điều chỉnh liều.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: PHA THUỐC BỘT (RECONSTITUTION) -->
+    <section id="tab-reconstitution" class="tab-content">
+      <div class="card">
+        <div class="card-title">💧 RECONSTITUTION CALCULATOR — Tính Thuốc Bột Sau Pha</div>
+        <div class="alert alert-info">
+          Phân biệt rõ ràng: <strong>Lượng nước cất/dung môi cần thêm</strong> và <strong>Thể tích cuối cùng sau pha</strong> (do bột thuốc có thể chiếm thể tích choán chỗ).
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="reTotalDrugMg">Tổng Hàm Lượng Thuốc Trong Lọ/Chai (mg) <span style="color: var(--danger);">*</span>:</label>
+            <input type="number" id="reTotalDrugMg" step="0.1" placeholder="VD: 1000 mg hoặc 500 mg">
+          </div>
+          <div class="form-group">
+            <label for="reFinalVolumeMl">Thể Tích Cuối Cùng Sau Pha (mL) <span style="color: var(--danger);">*</span>:</label>
+            <input type="number" id="reFinalVolumeMl" step="0.1" placeholder="VD: 10 mL hoặc 50 mL">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="reWaterToAddMl">Lượng Nước Cần Thêm Theo Nhà SX (mL):</label>
+            <input type="number" id="reWaterToAddMl" step="0.1" placeholder="Nếu không rõ để trống">
+          </div>
+          <div class="form-group">
+            <label for="reTargetDoseMg">Liều Cần Dùng Cho Bệnh Nhân (mg) <span style="color: var(--danger);">*</span>:</label>
+            <input type="number" id="reTargetDoseMg" step="0.1" placeholder="VD: 250 mg">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" style="margin-top: 8px;" onclick="executeReconstitutionCalc()">💧 TÍNH TOÁN PHA THUỐC</button>
+      </div>
+
+      <div id="reOutputArea" style="display: none;">
+        <div class="card">
+          <div class="card-title">Kết Quả Pha Thuốc Bột</div>
+          <div id="reWaterNotice"></div>
+          <div class="calc-step-box" id="reStepsText"></div>
+          <div class="final-result-card">
+            <div class="final-result-sub">Thể tích cần rút tiêm/cho uống:</div>
+            <div class="final-result-val" id="reFinalVolVal">- mL</div>
+            <div class="final-result-sub" id="reFinalConcVal">- mg/mL</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: DATABASE THUỐC -->
+    <section id="tab-database" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>💊 Quản Lý Cơ Sở Dữ Liệu Thuốc</span>
+          <button class="btn btn-sm btn-primary" onclick="openAddMedicationForm()">➕ Thêm Thuốc</button>
+        </div>
+        <div class="grid-3" style="margin-bottom: 10px;">
+          <div class="form-group">
+            <label for="dbSearchInput">Tìm Kiếm Realtime (Tên, hoạt chất...):</label>
+            <input type="text" id="dbSearchInput" placeholder="Nhập để tìm không dấu..." oninput="onDbSearchChanged()">
+          </div>
+          <div class="form-group">
+            <label for="dbFilterStatus">Lọc Theo Trạng Thái:</label>
+            <select id="dbFilterStatus" onchange="renderDatabaseList()">
+              <option value="all">Tất cả trạng thái</option>
+              <option value="verified">🟢 Verified</option>
+              <option value="needs-review">🟡 Needs Review</option>
+              <option value="unverified">⚪ Unverified</option>
+              <option value="error">🔴 Error</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="dbSortOrder">Sắp Xếp:</label>
+            <select id="dbSortOrder" onchange="renderDatabaseList()">
+              <option value="name_asc">Tên (A → Z)</option>
+              <option value="name_desc">Tên (Z → A)</option>
+              <option value="updated_desc">Mới cập nhật nhất</option>
+              <option value="created_asc">Cũ nhất</option>
+              <option value="generic_asc">Tên hoạt chất</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);" id="dbCountNotice">Hiển thị 0 thuốc</span>
+          <button class="btn btn-sm btn-secondary" onclick="exportMedicationsCsv()">📊 Xuất CSV</button>
+        </div>
+        <div id="medicationListContainer"></div>
+        <div id="dbPaginationControls" style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: THÊM / SỬA THUỐC -->
+    <section id="tab-add-med" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span id="medFormHeader">➕ Thêm Thuốc Mới Vào Database</span>
+          <button class="btn btn-sm btn-secondary" onclick="resetMedicationForm()">Hủy / Xóa Form</button>
+        </div>
+        <input type="hidden" id="medFormId">
+        <input type="hidden" id="medFormVersion" value="1">
+        
+        <h4 style="margin: 12px 0 6px; color: var(--primary-dark);">1. THÔNG TIN CƠ BẢN</h4>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="medName">Tên Thuốc <span style="color: var(--danger);">*</span>:</label>
+            <input type="text" id="medName" placeholder="VD: Amoxicillin 250mg/5mL">
+          </div>
+          <div class="form-group">
+            <label for="medGenericName">Tên Hoạt Chất <span style="color: var(--danger);">*</span>:</label>
+            <input type="text" id="medGenericName" placeholder="VD: Amoxicillin">
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="medBrandName">Tên Biệt Dược:</label>
+            <input type="text" id="medBrandName" placeholder="VD: Ospamox, Augmentin">
+          </div>
+          <div class="form-group">
+            <label for="medAliases">Biệt danh / Aliases (cách nhau dấu phẩy):</label>
+            <input type="text" id="medAliases" placeholder="VD: Amox, Amoxy">
+          </div>
+          <div class="form-group">
+            <label for="medDosageForm">Dạng Bào Chế:</label>
+            <input type="text" id="medDosageForm" placeholder="VD: Bột pha hỗn dịch, Viên nén">
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="medStrength">Hàm Lượng Ghi Trên Nhãn:</label>
+            <input type="text" id="medStrength" placeholder="VD: 250mg/5mL hoặc 500mg">
+          </div>
+          <div class="form-group">
+            <label for="medRoute">Đường Dùng:</label>
+            <input type="text" id="medRoute" placeholder="VD: Uống, Tiêm TM">
+          </div>
+          <div class="form-group">
+            <label for="medManufacturer">Nhà Sản Xuất:</label>
+            <input type="text" id="medManufacturer" placeholder="VD: Dược Hậu Giang">
+          </div>
+        </div>
+
+        <h4 style="margin: 14px 0 6px; color: var(--primary-dark);">2. THÔNG SỐ LIỀU DÙNG (DOSE SPECS)</h4>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="medDoseType">Kiểu Liều Mặc Định:</label>
+            <select id="medDoseType">
+              <option value="mg_kg_dose">mg/kg/lần</option>
+              <option value="mg_kg_day">mg/kg/ngày</option>
+              <option value="mg_dose">mg/lần</option>
+              <option value="mg_day">mg/ngày</option>
+              <option value="fixed">Liều cố định</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="medDoseValue">Giá Trị Liều:</label>
+            <input type="number" id="medDoseValue" step="0.1" placeholder="VD: 15 hoặc 40">
+          </div>
+          <div class="form-group">
+            <label for="medDoseFrequency">Số Lần Dùng/Ngày:</label>
+            <input type="number" id="medDoseFrequency" step="1" placeholder="VD: 2 hoặc 3">
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="medMaxPerDose">Liều Tối Đa/Lần (mg):</label>
+            <input type="number" id="medMaxPerDose" placeholder="Tùy chọn">
+          </div>
+          <div class="form-group">
+            <label for="medMaxPerDay">Liều Tối Đa/Ngày (mg):</label>
+            <input type="number" id="medMaxPerDay" placeholder="Tùy chọn">
+          </div>
+          <div class="form-group">
+            <label for="medMaxPerKgPerDay">Tối Đa mg/kg/ngày:</label>
+            <input type="number" id="medMaxPerKgPerDay" placeholder="Tùy chọn">
+          </div>
+        </div>
+        <div class="grid-4">
+          <div class="form-group">
+            <label for="medMinAge">Tuổi Tối Thiểu (tháng):</label>
+            <input type="number" id="medMinAge" placeholder="VD: 3">
+          </div>
+          <div class="form-group">
+            <label for="medMaxAge">Tuổi Tối Đa (tháng):</label>
+            <input type="number" id="medMaxAge" placeholder="VD: 144">
+          </div>
+          <div class="form-group">
+            <label for="medMinWeight">Cân Nặng Min (kg):</label>
+            <input type="number" id="medMinWeight" placeholder="VD: 5">
+          </div>
+          <div class="form-group">
+            <label for="medMaxWeight">Cân Nặng Max (kg):</label>
+            <input type="number" id="medMaxWeight" placeholder="VD: 50">
+          </div>
+        </div>
+
+        <h4 style="margin: 14px 0 6px; color: var(--primary-dark);">3. DẠNG LỎNG &amp; NỒNG ĐỘ</h4>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="medLiquidMg">Lượng Hoạt Chất (mg):</label>
+            <input type="number" id="medLiquidMg" step="0.1" placeholder="VD: 250">
+          </div>
+          <div class="form-group">
+            <label for="medLiquidMl">Thể Tích Dung Dịch (mL):</label>
+            <input type="number" id="medLiquidMl" step="0.1" placeholder="VD: 5">
+          </div>
+          <div class="form-group">
+            <label for="medLiquidConc">mg/mL (Tự tính hoặc nhập):</label>
+            <input type="number" id="medLiquidConc" step="0.01" placeholder="VD: 50">
+          </div>
+        </div>
+
+        <h4 style="margin: 14px 0 6px; color: var(--primary-dark);">4. PHA THUỐC BỘT (RECONSTITUTION)</h4>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="medReTotalMg">Tổng Lượng Thuốc Trong Lọ (mg):</label>
+            <input type="number" id="medReTotalMg" placeholder="VD: 1000">
+          </div>
+          <div class="form-group">
+            <label for="medReFinalMl">Thể Tích Sau Pha (mL):</label>
+            <input type="number" id="medReFinalMl" placeholder="VD: 10">
+          </div>
+          <div class="form-group">
+            <label for="medReWaterMl">Nước Cần Thêm (mL):</label>
+            <input type="number" id="medReWaterMl" placeholder="Nếu có hướng dẫn">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="medReInstructions">Hướng Dẫn Pha Chi Tiết:</label>
+          <input type="text" id="medReInstructions" placeholder="VD: Lắc đều chai bột, thêm 12mL nước đun sôi để nguội thành 20mL...">
+        </div>
+
+        <h4 style="margin: 14px 0 6px; color: var(--primary-dark);">5. NGUỒN DỮ LIỆU &amp; XÁC MINH <span style="color: var(--danger);">*</span></h4>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="medSourceName">Tên Nguồn Tài Liệu:</label>
+            <input type="text" id="medSourceName" placeholder="VD: Dược Thư QG 2022 / Tờ Hướng Dẫn Sử Dụng">
+          </div>
+          <div class="form-group">
+            <label for="medSourceUrl">URL Nguồn (nếu có):</label>
+            <input type="text" id="medSourceUrl" placeholder="https://...">
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="medVerifiedDate">Ngày Xác Minh:</label>
+            <input type="date" id="medVerifiedDate">
+          </div>
+          <div class="form-group">
+            <label for="medVerifiedBy">Người / Bác Sĩ Xác Minh:</label>
+            <input type="text" id="medVerifiedBy" placeholder="Họ tên hoặc chức danh">
+          </div>
+          <div class="form-group">
+            <label for="medStatus">Trạng Thái Dữ Liệu:</label>
+            <select id="medStatus">
+              <option value="unverified">⚪ unverified (Chưa kiểm chứng)</option>
+              <option value="verified">🟢 verified (Đã xác minh)</option>
+              <option value="needs-review">🟡 needs-review (Cần xem lại)</option>
+              <option value="error">🔴 error (Có sai sót)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="medNotes">Ghi Chú Lâm Sàng (notes):</label>
+          <textarea id="medNotes" rows="2" placeholder="Chỉ định đặc biệt, lưu ý khi uống..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button class="btn btn-primary" style="flex: 1; padding: 12px;" onclick="saveMedicationFromForm()">💾 LƯU THUỐC VÀO DATABASE</button>
+          <button class="btn btn-secondary" onclick="resetMedicationForm()">HỦY</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: LỊCH SỬ THAY ĐỔI -->
+    <section id="tab-history" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>🕘 Lịch Sử Thay Đổi Thuốc (Audit Trail)</span>
+          <button class="btn btn-sm btn-secondary" onclick="renderHistoryList()">Làm mới</button>
+        </div>
+        <div id="historyListContainer"></div>
+      </div>
+    </section>
+
+    <!-- TAB 7: DATA AUDIT -->
+    <section id="tab-audit" class="tab-content">
+      <div class="card">
+        <div class="card-title">
+          <span>🔍 DATABASE AUDIT — Kiểm Tra Tính Toàn Vẹn</span>
+          <button class="btn btn-sm btn-primary" onclick="runDatabaseAudit()">Chạy Audit Ngay</button>
+        </div>
+        <div id="auditSummaryContainer"></div>
+        <div id="auditDetailsContainer" style="margin-top: 14px;"></div>
+      </div>
+    </section>
+
+    <!-- TAB 8: AI ASSISTANT -->
+    <section id="tab-ai-assistant" class="tab-content">
+      <div class="card">
+        <div class="card-title">🤖 AI Data Review &amp; Suggestion Architecture</div>
+        <div class="alert alert-warning">
+          <strong>QUY TRÌNH AN TOÀN BẮT BUỘC:</strong>
+          AI chỉ đọc dữ liệu, phân tích sự bất thường, đối chiếu tài liệu và ĐỀ XUẤT thay đổi. Tuyệt đối <strong>KHÔNG TỰ Ý SỬA LIỀU THUỐC</strong>. Mọi thay đổi đều phải qua phê duyệt từng bước của con người.
+        </div>
+        <button class="btn btn-primary" onclick="runAiDiagnosticSimulation()">🤖 Chạy AI Kiểm Tra Bất Thường Dữ Liệu</button>
+        <div id="aiSuggestionContainer" style="margin-top: 14px;"></div>
+      </div>
+    </section>
+
+    <!-- TAB 9: BACKUP & RESTORE -->
+    <section id="tab-backup" class="tab-content">
+      <div class="card">
+        <div class="card-title">💾 Sao Lưu &amp; Phục Hồi Dữ Liệu</div>
+        <div class="grid-2">
+          <div style="border: 1px solid var(--border); padding: 14px; border-radius: 10px;">
+            <h4>📤 Xuất Backup (Export)</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 6px 0 12px;">Xuất toàn bộ medications, history, deletedRecords, settings dưới dạng file .json an toàn.</p>
+            <button class="btn btn-primary btn-block" onclick="exportBackupFile()">📤 Tải File Backup JSON</button>
+            <button class="btn btn-secondary btn-block" style="margin-top: 6px;" onclick="exportAllMedsMarkdown()">📝 Xuất Báo Cáo Markdown</button>
+          </div>
+          <div style="border: 1px solid var(--border); padding: 14px; border-radius: 10px;">
+            <h4>📥 Nhập Backup (Import)</h4>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 6px 0 12px;">Kiểm tra cấu trúc Schema trước khi ghi đè, tự động tạo bản lưu dự phòng.</p>
+            <input type="file" id="importFileInput" accept=".json" style="margin-bottom: 8px;" onchange="onBackupFileSelected(event)">
+            <div id="importPreReviewArea" style="display: none;">
+              <div class="form-group">
+                <label for="importModeSelect">Chế Độ Nhập:</label>
+                <select id="importModeSelect">
+                  <option value="overwrite">○ Ghi đè toàn bộ database</option>
+                  <option value="merge">○ Gộp database (Merge)</option>
+                  <option value="new_only">○ Chỉ thêm thuốc mới (bỏ qua ID trùng)</option>
+                  <option value="update_existing">○ Cập nhật thuốc trùng ID</option>
+                </select>
+              </div>
+              <button class="btn btn-danger btn-block" onclick="executeImportBackup()">Xác Nhận Import Vào Database</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⏱️ Các Bản Sao Lưu Tự Động Nội Bộ</div>
+        <div id="internalBackupsList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 10: CÀI ĐẶT -->
+    <section id="tab-settings" class="tab-content">
+      <div class="card">
+        <div class="card-title">⚙️ Cài Đặt Hệ Thống</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="settingUnitWeight">Đơn vị cân nặng mặc định:</label>
+            <select id="settingUnitWeight">
+              <option value="kg">kg (Kilogram)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="settingRoundMl">Độ chính xác làm tròn thể tích (mL):</label>
+            <select id="settingRoundMl">
+              <option value="0.1">0.1 mL (Khuyên dùng lâm sàng nhi)</option>
+              <option value="0.5">0.5 mL</option>
+              <option value="1.0">1.0 mL</option>
+              <option value="none">Không làm tròn (Hiển thị số thực)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="settingMaxBackups">Số bản auto-backup lưu trữ tối đa:</label>
+            <select id="settingMaxBackups">
+              <option value="5">5 bản</option>
+              <option value="10" selected>10 bản</option>
+              <option value="20">20 bản</option>
+              <option value="50">50 bản</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="settingConfirmEdit">Xác nhận trước khi sửa/xóa:</label>
+            <select id="settingConfirmEdit">
+              <option value="yes">BẬT (Khuyên dùng)</option>
+              <option value="no">TẮT</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="settingAutoBackupCheck" checked> Tự động sao lưu trước khi Sửa, Xóa hoặc Phục hồi
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettingsForm()">💾 LƯU CÀI ĐẶT</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- BOTTOM NAVIGATION CHO MOBILE -->
+  <nav class="nav-bottom">
+    <button class="nav-tab active" onclick="switchTab('tab-dashboard')">
+      <span class="icon">📊</span>Tổng quan
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-calculator')">
+      <span class="icon">🧮</span>Tính liều
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-database')">
+      <span class="icon">💊</span>Database
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-add-med')">
+      <span class="icon">➕</span>Thêm thuốc
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-settings')">
+      <span class="icon">⚙️</span>Cài đặt
+    </button>
+  </nav>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- MODAL CONTAINER -->
+  <div class="modal-backdrop" id="appModalBackdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Thông Báo</h3>
+        <button class="modal-close-btn" onclick="closeModal()">✕</button>
+      </div>
+      <div id="modalBody"></div>
+      <div id="modalActions" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;"></div>
+    </div>
+  </div>
+
+  <!-- PRINT ONLY CONTAINER -->
+  <div id="printArea" class="print-only"></div>
+
+  <script>
+    const SCHEMA_VERSION = 1;
+    const DB_VERSION = 1;
+    const LOCAL_STORAGE_KEY = 'MEDCALC_ROOT_DATA_CYAN_V1';
+
+    const INITIAL_VERIFIED_MEDS = [
+      {
+        id: 'med_amox_250',
+        name: "Amoxicillin 250mg/5mL",
+        genericName: "Amoxicillin",
+        brandName: "Ospamox, Clamoxyl",
+        aliases: ["Amox", "Amoxy"],
+        strength: "250mg/5mL",
+        dosageForm: "Bột pha hỗn dịch uống",
+        route: "Uống",
+        packageSize: "Chai 60mL",
+        manufacturer: "Sandoz / DHG",
+        dose: {
+          type: "mg_kg_day",
+          value: 40,
+          unit: "mg",
+          frequency: 3,
+          maxPerDose: 1000,
+          maxPerDay: 3000,
+          maxPerKgPerDay: 90,
+          minAge: 3,
+          maxAge: 144,
+          minWeight: 5,
+          maxWeight: 40
+        },
+        liquid: {
+          strengthMg: 250,
+          volumeMl: 5,
+          concentrationMgMl: 50
+        },
+        reconstitution: {
+          totalDrugMg: 3000,
+          finalVolumeMl: 60,
+          waterToAddMl: null,
+          instructions: "Thêm nước đun sôi để nguội thành 60mL theo vạch chai."
+        },
+        source: {
+          name: "Dược Thư Quốc Gia Việt Nam 2022",
+          url: "https://duocthuquocgia.vn",
+          verifiedDate: "2026-09-18",
+          verifiedBy: "Ths. Bác sĩ Lâm Sàng"
+        },
+        notes: "Uống đầu bữa ăn để giảm khó chịu dạ dày. Chống chỉ định dị ứng Penicillin.",
+        status: "verified",
+        version: 1,
+        createdAt: "2026-09-18T00:00:00.000Z",
+        updatedAt: "2026-09-18T00:00:00.000Z"
+      },
+      {
+        id: 'med_para_80',
+        name: "Paracetamol 80mg gói",
+        genericName: "Paracetamol (Acetaminophen)",
+        brandName: "Hapacol 80, Efferalgan 80",
+        aliases: ["Para", "Acetaminophen"],
+        strength: "80mg",
+        dosageForm: "Thuốc bột sủi bọt",
+        route: "Uống",
+        packageSize: "Hộp 24 gói",
+        manufacturer: "DHG Pharma",
+        dose: {
+          type: "mg_kg_dose",
+          value: 12.5,
+          unit: "mg",
+          frequency: 4,
+          maxPerDose: 1000,
+          maxPerDay: 4000,
+          maxPerKgPerDay: 60,
+          minAge: 1,
+          maxAge: 24,
+          minWeight: 4,
+          maxWeight: 12
+        },
+        liquid: {
+          strengthMg: null,
+          volumeMl: null,
+          concentrationMgMl: null
+        },
+        reconstitution: {
+          totalDrugMg: null,
+          finalVolumeMl: null,
+          waterToAddMl: null,
+          instructions: ""
+        },
+        source: {
+          name: "Dược Thư Quốc Gia Việt Nam & Hướng Dẫn Bộ Y Tế",
+          url: "https://kcb.vn",
+          verifiedDate: "2026-09-18",
+          verifiedBy: "Bác Sĩ Nhi Khoa"
+        },
+        notes: "Khoảng cách giữa 2 liều ít nhất 4 - 6 giờ. Không dùng quá 60 mg/kg/ngày.",
+        status: "verified",
+        version: 1,
+        createdAt: "2026-09-18T00:00:00.000Z",
+        updatedAt: "2026-09-18T00:00:00.000Z"
+      }
+    ];
+
+    window.appState = {
+      schemaVersion: SCHEMA_VERSION,
+      databaseVersion: DB_VERSION,
+      medications: [...INITIAL_VERIFIED_MEDS],
+      history: [],
+      backups: [],
+      deletedRecords: [],
+      settings: {
+        unitWeight: 'kg',
+        roundMl: '0.1',
+        darkMode: false,
+        autoBackup: true,
+        maxBackups: 10,
+        confirmActions: true
+      },
+      updatedAt: new Date().toISOString()
+    };
+
+    let lastCalculatedResult = null;
+    let pendingImportData = null;
+
+    function safeSaveState() {
+      try {
+        window.appState.updatedAt = new Date().toISOString();
+        if (window.localStorage) {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(window.appState));
+        }
+      } catch (e) {
+        console.warn("Storage warning:", e);
+      }
+    }
+
+    function safeLoadState() {
+      try {
+        if (window.localStorage) {
+          const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.medications) && parsed.medications.length > 0) {
+              window.appState = parsed;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Storage fallback:", e);
+      }
+    }
+
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll(`button[onclick="switchTab('${tabId}')"]`).forEach(el => {
+        el.classList.add('active');
+      });
+
+      if (tabId === 'tab-dashboard') updateDashboard();
+      if (tabId === 'tab-database') renderDatabaseList();
+      if (tabId === 'tab-history') renderHistoryList();
+      if (tabId === 'tab-backup') renderBackupList();
+      if (tabId === 'tab-calculator') populateCalcMedDropdown();
+    };
+
+    window.showToast = function(message, undoCallback = null) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      
+      const textSpan = document.createElement('span');
+      textSpan.textContent = message;
+      toast.appendChild(textSpan);
+
+      if (undoCallback) {
+        const undoBtn = document.createElement('button');
+        undoBtn.className = 'toast-undo';
+        undoBtn.textContent = '↩ HOÀN TÁC';
+        undoBtn.onclick = () => {
+          undoCallback();
+          toast.remove();
+        };
+        toast.appendChild(undoBtn);
+      }
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 4500);
+    };
+
+    window.openModal = function(title, contentNode, actions = []) {
+      document.getElementById('modalTitle').textContent = title;
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+      body.appendChild(contentNode);
+
+      const actionArea = document.getElementById('modalActions');
+      actionArea.innerHTML = '';
+      actions.forEach(a => {
+        const b = document.createElement('button');
+        b.className = `btn ${a.className || 'btn-secondary'}`;
+        b.textContent = a.text;
+        b.onclick = () => { if (a.onClick) a.onClick(); };
+        actionArea.appendChild(b);
+      });
+
+      document.getElementById('appModalBackdrop').classList.add('open');
+    };
+
+    window.closeModal = function() {
+      const modal = document.getElementById('appModalBackdrop');
+      if (modal) modal.classList.remove('open');
+    };
+
+    function validatePatient(weight) {
+      if (weight === null || weight === undefined || isNaN(weight) || weight <= 0) {
+        return { valid: false, message: "Cân nặng phải là số dương lớn hơn 0 kg." };
+      }
+      return { valid: true };
+    }
+
+    function calculateConcentration(strengthMg, volumeMl) {
+      if (!strengthMg || !volumeMl || volumeMl <= 0) return 0;
+      return strengthMg / volumeMl;
+    }
+
+    function calculateVolume(doseMg, concentrationMgMl) {
+      if (!concentrationMgMl || concentrationMgMl <= 0) return 0;
+      return doseMg / concentrationMgMl;
+    }
+
+    function calculateTabletCount(doseMg, tabletStrengthMg) {
+      if (!tabletStrengthMg || tabletStrengthMg <= 0) return 0;
+      return doseMg / tabletStrengthMg;
+    }
+
+    function roundValue(val, step) {
+      if (step === 'none' || !step) return val;
+      const factor = 1 / parseFloat(step);
+      return Math.round(val * factor) / factor;
+    }
+
+    window.onDoseTypeChanged = function() {
+      const type = document.getElementById('calcDoseType').value;
+      const lbl = document.getElementById('lblDoseValue');
+      switch (type) {
+        case 'mg_kg_dose': lbl.innerHTML = 'Liều mg/kg/lần: <span style="color: var(--danger);">*</span>'; break;
+        case 'mg_kg_day': lbl.innerHTML = 'Liều mg/kg/ngày: <span style="color: var(--danger);">*</span>'; break;
+        case 'mg_dose': lbl.innerHTML = 'Liều mg/lần (Cố định): <span style="color: var(--danger);">*</span>'; break;
+        case 'mg_day': lbl.innerHTML = 'Liều mg/ngày (Cố định): <span style="color: var(--danger);">*</span>'; break;
+        case 'fixed': lbl.innerHTML = 'Liều Cố Định (mg): <span style="color: var(--danger);">*</span>'; break;
+      }
+    };
+
+    window.populateCalcMedDropdown = function() {
+      const select = document.getElementById('calcMedSelect');
+      if (!select) return;
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">-- Nhập thông số thủ công tự do --</option>';
+
+      (window.appState.medications || []).forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'}) [${m.status}]`;
+        select.appendChild(opt);
+      });
+
+      if (currentVal) select.value = currentVal;
+    };
+
+    window.onSelectMedicationForCalc = function(medId) {
+      const noticeBox = document.getElementById('calcMedMetadataNotice');
+      if (!medId) {
+        noticeBox.innerHTML = '';
+        return;
+      }
+      const med = (window.appState.medications || []).find(m => m.id === medId);
+      if (!med) return;
+
+      if (med.dose && med.dose.type) {
+        document.getElementById('calcDoseType').value = med.dose.type;
+        window.onDoseTypeChanged();
+      }
+      if (med.dose && med.dose.value !== null) {
+        document.getElementById('calcDoseValue').value = med.dose.value;
+      }
+      if (med.dose && med.dose.frequency) {
+        document.getElementById('calcFrequency').value = med.dose.frequency;
+      }
+      if (med.dose && med.dose.maxPerDose) {
+        document.getElementById('calcMaxPerDose').value = med.dose.maxPerDose;
+      }
+      if (med.dose && med.dose.maxPerDay) {
+        document.getElementById('calcMaxPerDay').value = med.dose.maxPerDay;
+      }
+
+      if (med.liquid && med.liquid.strengthMg && med.liquid.volumeMl) {
+        document.getElementById('calcLiquidMg').value = med.liquid.strengthMg;
+        document.getElementById('calcLiquidMl').value = med.liquid.volumeMl;
+      } else {
+        document.getElementById('calcLiquidMg').value = '';
+        document.getElementById('calcLiquidMl').value = '';
+      }
+
+      let statusBadgeClass = 'badge-unverified';
+      if (med.status === 'verified') statusBadgeClass = 'badge-verified';
+      if (med.status === 'needs-review') statusBadgeClass = 'badge-needs-review';
+      if (med.status === 'error') statusBadgeClass = 'badge-error';
+
+      noticeBox.innerHTML = `
+        <div class="alert alert-info" style="margin-top: 10px; font-size: 0.82rem;">
+          <div><strong>Thuốc:</strong> ${escapeHtml(med.name)} | Hoạt chất: ${escapeHtml(med.genericName || 'N/A')}</div>
+          <div>Trạng thái: <span class="status-badge ${statusBadgeClass}">${med.status}</span></div>
+          <div><strong>Nguồn:</strong> ${escapeHtml(med.source?.name || 'Không có')} | Xác minh: ${escapeHtml(med.source?.verifiedBy || 'Chưa rõ')} (${med.source?.verifiedDate || 'N/A'})</div>
+          ${med.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(med.notes)}</div>` : ''}
+        </div>
+      `;
+    };
+
+    window.executeDoseCalculation = function() {
+      const weight = parseFloat(document.getElementById('patientWeight').value);
+      const doseType = document.getElementById('calcDoseType').value;
+      const doseVal = parseFloat(document.getElementById('calcDoseValue').value);
+      const freq = parseInt(document.getElementById('calcFrequency').value, 10) || 1;
+      const maxDose = parseFloat(document.getElementById('calcMaxPerDose').value);
+      const maxDay = parseFloat(document.getElementById('calcMaxPerDay').value);
+
+      const tabletStrength = parseFloat(document.getElementById('calcTabletStrength').value);
+      const liquidMg = parseFloat(document.getElementById('calcLiquidMg').value);
+      const liquidMl = parseFloat(document.getElementById('calcLiquidMl').value);
+
+      const weightVal = validatePatient(weight);
+      if ((doseType === 'mg_kg_dose' || doseType === 'mg_kg_day') && !weightVal.valid) {
+        alert(weightVal.message);
+        return;
+      }
+      if (isNaN(doseVal) || doseVal <= 0) {
+        alert("Liều lượng nhập vào phải lớn hơn 0.");
+        return;
+      }
+
+      let steps = [];
+      let warnings = [];
+
+      steps.push(`CÂN NẶNG BỆNH NHÂN: ${isNaN(weight) ? 'Không áp dụng (Liều cố định)' : weight + ' kg'}`);
+      steps.push(`KIỂU TÍNH LIỀU: ${doseType} | MỨC LIỀU NHẬP: ${doseVal}`);
+
+      let perDoseMg = 0;
+      let perDayMg = 0;
+
+      if (doseType === 'mg_kg_dose') {
+        perDoseMg = weight * doseVal;
+        perDayMg = perDoseMg * freq;
+        steps.push(`BƯỚC 1: ${weight} kg × ${doseVal} mg/kg/lần = ${perDoseMg.toFixed(2)} mg/lần`);
+        steps.push(`BƯỚC 2: ${perDoseMg.toFixed(2)} mg/lần × ${freq} lần/ngày = ${perDayMg.toFixed(2)} mg/ngày`);
+      } else if (doseType === 'mg_kg_day') {
+        perDayMg = weight * doseVal;
+        perDoseMg = perDayMg / freq;
+        steps.push(`BƯỚC 1: ${weight} kg × ${doseVal} mg/kg/ngày = ${perDayMg.toFixed(2)} mg/ngày`);
+        steps.push(`BƯỚC 2: ${perDayMg.toFixed(2)} mg ÷ ${freq} lần/ngày = ${perDoseMg.toFixed(2)} mg/lần`);
+      } else if (doseType === 'mg_dose' || doseType === 'fixed') {
+        perDoseMg = doseVal;
+        perDayMg = perDoseMg * freq;
+        steps.push(`BƯỚC 1: Liều cố định = ${perDoseMg} mg/lần`);
+        steps.push(`BƯỚC 2: ${perDoseMg} mg/lần × ${freq} lần/ngày = ${perDayMg.toFixed(2)} mg/ngày`);
+      } else if (doseType === 'mg_day') {
+        perDayMg = doseVal;
+        perDoseMg = perDayMg / freq;
+        steps.push(`BƯỚC 1: Liều theo ngày = ${perDayMg} mg/ngày`);
+        steps.push(`BƯỚC 2: ${perDayMg} mg ÷ ${freq} lần/ngày = ${perDoseMg.toFixed(2)} mg/lần`);
+      }
+
+      if (!isNaN(maxDose) && maxDose > 0 && perDoseMg > maxDose) {
+        warnings.push(`🔴 CẢNH BÁO: Liều tính toán (${perDoseMg.toFixed(2)} mg/lần) VƯỢT QUÁ giới hạn tối đa mỗi lần (${maxDose} mg).`);
+      }
+      if (!isNaN(maxDay) && maxDay > 0 && perDayMg > maxDay) {
+        warnings.push(`🔴 CẢNH BÁO: Liều tổng ngày (${perDayMg.toFixed(2)} mg/ngày) VƯỢT QUÁ giới hạn tối đa mỗi ngày (${maxDay} mg).`);
+      }
+
+      let physicalResultText = "";
+
+      if (!isNaN(tabletStrength) && tabletStrength > 0) {
+        const tablets = calculateTabletCount(perDoseMg, tabletStrength);
+        steps.push(`--- DẠNG VIÊN ---`);
+        steps.push(`HÀM LƯỢNG: ${tabletStrength} mg/viên`);
+        steps.push(`TÍNH SỐ VIÊN: ${perDoseMg.toFixed(2)} mg ÷ ${tabletStrength} mg/viên = ${tablets.toFixed(2)} viên`);
+        physicalResultText += `💊 Số viên: ${tablets.toFixed(2)} viên/lần (${(tablets * freq).toFixed(2)} viên/ngày)`;
+
+        const remainder = Math.abs(tablets - Math.round(tablets * 2) / 2);
+        if (remainder > 0.05) {
+          warnings.push(`⚠️ CẢNH BÁO DẠNG VIÊN: Kết quả (${tablets.toFixed(2)} viên) không phải số viên nguyên hoặc nửa viên.`);
+        }
+      }
+
+      let liquidVolPerDose = null;
+      let roundedLiquidVol = null;
+      if (!isNaN(liquidMg) && !isNaN(liquidMl) && liquidMg > 0 && liquidMl > 0) {
+        const conc = calculateConcentration(liquidMg, liquidMl);
+        liquidVolPerDose = calculateVolume(perDoseMg, conc);
+        const liquidVolPerDay = liquidVolPerDose * freq;
+        const roundStep = window.appState.settings.roundMl;
+        roundedLiquidVol = roundValue(liquidVolPerDose, roundStep);
+        const roundedDailyVol = roundValue(liquidVolPerDay, roundStep);
+
+        steps.push(`--- DẠNG DUNG DỊCH / SIRO ---`);
+        steps.push(`NỒNG ĐỘ: ${liquidMg} mg / ${liquidMl} mL = ${conc.toFixed(2)} mg/mL`);
+        steps.push(`THỂ TÍCH TÍNH TOÁN: ${perDoseMg.toFixed(2)} mg ÷ ${conc.toFixed(2)} mg/mL = ${liquidVolPerDose.toFixed(2)} mL/lần`);
+        steps.push(`LÀM TRÒN (${roundStep} mL): ${roundedLiquidVol} mL/lần (${roundedDailyVol} mL/ngày)`);
+
+        physicalResultText += ` | 💧 Thể tích: ${roundedLiquidVol} mL/lần (${roundedDailyVol} mL/ngày)`;
+      }
+
+      const warnBox = document.getElementById('calcWarningNotice');
+      if (warnings.length > 0) {
+        warnBox.innerHTML = warnings.map(w => `<div class="alert alert-danger">${escapeHtml(w)}</div>`).join('');
+      } else {
+        warnBox.innerHTML = '';
+      }
+
+      document.getElementById('calcStepsText').innerHTML = steps.map(s => `<div class="calc-step-line">${escapeHtml(s)}</div>`).join('');
+
+      if (roundedLiquidVol !== null) {
+        document.getElementById('finalResultDose').textContent = `${roundedLiquidVol} mL/lần`;
+        document.getElementById('finalResultDaily').textContent = `${(roundedLiquidVol * freq).toFixed(1)} mL/ngày (${freq} lần/ngày)`;
+      } else {
+        document.getElementById('finalResultDose').textContent = `${perDoseMg.toFixed(2)} mg/lần`;
+        document.getElementById('finalResultDaily').textContent = `${perDayMg.toFixed(2)} mg/ngày (${freq} lần/ngày)`;
+      }
+      document.getElementById('finalResultPhysical').textContent = physicalResultText;
+
+      document.getElementById('calcOutputArea').style.display = 'block';
+
+      lastCalculatedResult = {
+        patientWeight: weight,
+        patientAge: document.getElementById('patientAge').value,
+        doseType,
+        doseVal,
+        freq,
+        perDoseMg,
+        perDayMg,
+        steps,
+        warnings,
+        roundedLiquidVol,
+        physicalResultText,
+        timestamp: new Date().toLocaleString()
+      };
+    };
+
+    window.resetDoseForm = function() {
+      document.getElementById('calcMedSelect').value = '';
+      document.getElementById('patientWeight').value = '';
+      document.getElementById('patientAge').value = '';
+      document.getElementById('patientHeight').value = '';
+      document.getElementById('calcDoseValue').value = '';
+      document.getElementById('calcTabletStrength').value = '';
+      document.getElementById('calcLiquidMg').value = '';
+      document.getElementById('calcLiquidMl').value = '';
+      document.getElementById('calcMaxPerDose').value = '';
+      document.getElementById('calcMaxPerDay').value = '';
+      document.getElementById('calcMedMetadataNotice').innerHTML = '';
+      document.getElementById('calcOutputArea').style.display = 'none';
+      lastCalculatedResult = null;
+    };
+
+    window.copyDoseResultToClipboard = function() {
+      if (!lastCalculatedResult) return;
+      const res = lastCalculatedResult;
+      const text = [
+        "=== MEDCALC CLINICAL DOSE CALCULATION ===",
+        `Thời gian: ${res.timestamp}`,
+        `Cân nặng: ${res.patientWeight || 'N/A'} kg | Tuổi: ${res.patientAge || 'N/A'}`,
+        `Liều mỗi lần: ${res.perDoseMg.toFixed(2)} mg`,
+        `Số lần: ${res.freq} lần/ngày | Tổng ngày: ${res.perDayMg.toFixed(2)} mg/ngày`,
+        res.physicalResultText ? `Dạng thuốc: ${res.physicalResultText}` : '',
+        res.warnings.length ? `CẢNH BÁO: ${res.warnings.join(' | ')}` : '',
+        "========================================",
+        "Kiểm tra lại dữ liệu trước khi dùng trên người bệnh."
+      ].filter(Boolean).join('\n');
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("✓ Đã sao chép kết quả vào Clipboard!");
+      }).catch(() => {
+        alert("Không thể truy cập Clipboard.");
+      });
+    };
+
+    window.printDoseResult = function() {
+      if (!lastCalculatedResult) return;
+      const res = lastCalculatedResult;
+      const printBox = document.getElementById('printArea');
+      printBox.innerHTML = `
+        <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.5;">
+          <h2 style="border-bottom: 2px solid #000; padding-bottom: 5px;">PHIẾU TÍNH LIỀU THUỐC LÂM SÀNG — MEDCALC</h2>
+          <p><strong>Thời gian in:</strong> ${new Date().toLocaleString()}</p>
+          <hr>
+          <h3>1. THÔNG TIN BỆNH NHÂN</h3>
+          <p>Cân nặng: <strong>${res.patientWeight || 'N/A'} kg</strong> | Tuổi: ${res.patientAge || 'N/A'}</p>
+          <hr>
+          <h3>2. CÁC BƯỚC TÍNH TOÁN</h3>
+          <pre style="background: #f4f4f4; padding: 10px;">${res.steps.join('\n')}</pre>
+          <hr>
+          <h3>3. KẾT QUẢ CUỐI CÙNG</h3>
+          <h2>Liều dùng: ${res.perDoseMg.toFixed(2)} mg/lần (Ngày ${res.freq} lần, Tổng: ${res.perDayMg.toFixed(2)} mg/ngày)</h2>
+          <p><strong>${res.physicalResultText || ''}</strong></p>
+          ${res.warnings.length ? `<div style="border: 2px solid red; padding: 10px; color: red;"><strong>CẢNH BÁO:</strong><br>${res.warnings.join('<br>')}</div>` : ''}
+          <br><br>
+          <p style="font-size: 0.8rem; font-style: italic;">Lưu ý: Bác sĩ/Dược sĩ chịu trách nhiệm đối chiếu lâm sàng trước khi thực hiện y lệnh.</p>
+        </div>
+      `;
+      window.print();
+    };
+
+    window.exportDoseTxt = function() {
+      if (!lastCalculatedResult) return;
+      const res = lastCalculatedResult;
+      const content = [
+        "MEDCALC - CLINICAL DOSE CALCULATION RESULT",
+        `Time: ${res.timestamp}`,
+        `Weight: ${res.patientWeight} kg`,
+        `Steps:`,
+        res.steps.join('\n'),
+        `Final: ${res.perDoseMg.toFixed(2)} mg/dose | Frequency: ${res.freq}/day`,
+        res.physicalResultText,
+        res.warnings.join('\n')
+      ].join('\n\n');
+      downloadFile(content, `medcalc-dose-${Date.now()}.txt`, 'text/plain');
+    };
+
+    window.executeReconstitutionCalc = function() {
+      const totalDrugMg = parseFloat(document.getElementById('reTotalDrugMg').value);
+      const finalVolumeMl = parseFloat(document.getElementById('reFinalVolumeMl').value);
+      const waterToAddMl = parseFloat(document.getElementById('reWaterToAddMl').value);
+      const targetDoseMg = parseFloat(document.getElementById('reTargetDoseMg').value);
+
+      if (isNaN(totalDrugMg) || totalDrugMg <= 0 || isNaN(finalVolumeMl) || finalVolumeMl <= 0 || isNaN(targetDoseMg) || targetDoseMg <= 0) {
+        alert("Vui lòng nhập đầy đủ tổng mg, thể tích cuối và liều cần dùng.");
+        return;
+      }
+
+      const noticeArea = document.getElementById('reWaterNotice');
+      if (isNaN(waterToAddMl) || waterToAddMl <= 0) {
+        noticeArea.innerHTML = `
+          <div class="alert alert-warning">
+            ⚠️ <strong>CẢNH BÁO:</strong> Không có dữ liệu của nhà sản xuất về lượng nước cần thêm. Bột thuốc có thể chiếm thể tích choán chỗ.
+          </div>
+        `;
+      } else {
+        noticeArea.innerHTML = `
+          <div class="alert alert-info">
+            ✓ Lượng nước cất cần thêm theo chỉ dẫn: <strong>${waterToAddMl} mL</strong> để đạt thể tích cuối <strong>${finalVolumeMl} mL</strong>.
+          </div>
+        `;
+      }
+
+      const conc = totalDrugMg / finalVolumeMl;
+      const neededMl = targetDoseMg / conc;
+
+      const steps = [
+        `TỔNG HOẠT CHẤT: ${totalDrugMg} mg`,
+        `THỂ TÍCH CUỐI CÙNG SAU PHA: ${finalVolumeMl} mL`,
+        `BƯỚC 1: Nồng độ sau pha = ${totalDrugMg} mg ÷ ${finalVolumeMl} mL = ${conc.toFixed(2)} mg/mL`,
+        `BƯỚC 2: Thể tích cho liều ${targetDoseMg} mg = ${targetDoseMg} mg ÷ ${conc.toFixed(2)} mg/mL = ${neededMl.toFixed(2)} mL`
+      ];
+
+      document.getElementById('reStepsText').innerHTML = steps.map(s => `<div class="calc-step-line">${escapeHtml(s)}</div>`).join('');
+      document.getElementById('reFinalVolVal').textContent = `${neededMl.toFixed(2)} mL`;
+      document.getElementById('reFinalConcVal').textContent = `Nồng độ: ${conc.toFixed(2)} mg/mL`;
+      document.getElementById('reOutputArea').style.display = 'block';
+    };
+
+    let dbCurrentPage = 1;
+    const DB_ITEMS_PER_PAGE = 8;
+
+    window.renderDatabaseList = function() {
+      const listContainer = document.getElementById('medicationListContainer');
+      if (!listContainer) return;
+      const searchTerm = removeVietnameseTones((document.getElementById('dbSearchInput')?.value || '').trim().toLowerCase());
+      const filterStatus = document.getElementById('dbFilterStatus')?.value || 'all';
+      const sortOrder = document.getElementById('dbSortOrder')?.value || 'name_asc';
+
+      let list = (window.appState.medications || []).slice();
+
+      if (filterStatus !== 'all') {
+        list = list.filter(m => m.status === filterStatus);
+      }
+      if (searchTerm) {
+        list = list.filter(m => {
+          const str = removeVietnameseTones([
+            m.name, m.genericName, m.brandName, (m.aliases || []).join(' '), m.strength, m.dosageForm
+          ].join(' ').toLowerCase());
+          return str.includes(searchTerm);
+        });
+      }
+
+      list.sort((a, b) => {
+        if (sortOrder === 'name_asc') return a.name.localeCompare(b.name);
+        if (sortOrder === 'name_desc') return b.name.localeCompare(a.name);
+        if (sortOrder === 'updated_desc') return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
+        if (sortOrder === 'created_asc') return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+        if (sortOrder === 'generic_asc') return (a.genericName || '').localeCompare(b.genericName || '');
+        return 0;
+      });
+
+      const countNotice = document.getElementById('dbCountNotice');
+      if (countNotice) {
+        countNotice.textContent = `Hiển thị ${list.length} thuốc (Tổng: ${window.appState.medications.length})`;
+      }
+
+      const totalPages = Math.ceil(list.length / DB_ITEMS_PER_PAGE) || 1;
+      if (dbCurrentPage > totalPages) dbCurrentPage = totalPages;
+      const startIdx = (dbCurrentPage - 1) * DB_ITEMS_PER_PAGE;
+      const pageItems = list.slice(startIdx, startIdx + DB_ITEMS_PER_PAGE);
+
+      if (pageItems.length === 0) {
+        listContainer.innerHTML = `
+          <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+            Không tìm thấy thuốc nào phù hợp.
+          </div>
+        `;
+        document.getElementById('dbPaginationControls').innerHTML = '';
+        return;
+      }
+
+      listContainer.innerHTML = pageItems.map(m => {
+        let statusBadgeClass = 'badge-unverified';
+        if (m.status === 'verified') statusBadgeClass = 'badge-verified';
+        if (m.status === 'needs-review') statusBadgeClass = 'badge-needs-review';
+        if (m.status === 'error') statusBadgeClass = 'badge-error';
+
+        return `
+          <div class="med-item">
+            <div class="med-header">
+              <div>
+                <div class="med-name">${escapeHtml(m.name)} <span class="status-badge ${statusBadgeClass}">${m.status}</span></div>
+                <div class="med-sub">Hoạt chất: <strong>${escapeHtml(m.genericName || 'Chưa rõ')}</strong> | Dạng: ${escapeHtml(m.dosageForm || 'N/A')} | v${m.version || 1}</div>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="selectMedForCalculationDirect('${m.id}')">🧮 Tính liều</button>
+            </div>
+            <div style="font-size: 0.82rem; color: var(--text);">
+              <span>Liều: <strong>${m.dose?.value ?? 'N/A'}</strong> ${m.dose?.unit || ''} (${m.dose?.type || 'chưa đặt'}) | Tần suất: ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : 'N/A'}</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+              Nguồn: ${escapeHtml(m.source?.name || 'Chưa ghi nguồn')} | Cập nhật: ${formatDate(m.updatedAt)}
+            </div>
+            <div class="med-actions">
+              <button class="btn btn-sm btn-secondary" onclick="viewMedicationDetailModal('${m.id}')">👁 Xem chi tiết</button>
+              <button class="btn btn-sm btn-secondary" onclick="editMedication('${m.id}')">✏️ Sửa</button>
+              <button class="btn btn-sm btn-secondary" onclick="duplicateMedication('${m.id}')">📑 Nhân bản</button>
+              <button class="btn btn-sm btn-secondary" onclick="exportSingleMedMarkdown('${m.id}')">📄 MD</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteMedication('${m.id}')">🗑 Xóa</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      let pageBtns = '';
+      for (let i = 1; i <= totalPages; i++) {
+        pageBtns += `<button class="btn btn-sm ${i === dbCurrentPage ? 'btn-primary' : 'btn-secondary'}" onclick="setDbPage(${i})">${i}</button>`;
+      }
+      document.getElementById('dbPaginationControls').innerHTML = pageBtns;
+    };
+
+    window.setDbPage = function(p) {
+      dbCurrentPage = p;
+      renderDatabaseList();
+    };
+
+    let searchDebounceTimer = null;
+    window.onDbSearchChanged = function() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        dbCurrentPage = 1;
+        renderDatabaseList();
+      }, 200);
+    };
+
+    window.selectMedForCalculationDirect = function(medId) {
+      switchTab('tab-calculator');
+      populateCalcMedDropdown();
+      document.getElementById('calcMedSelect').value = medId;
+      onSelectMedicationForCalc(medId);
+    };
+
+    window.openAddMedicationForm = function() {
+      resetMedicationForm();
+      switchTab('tab-add-med');
+      document.getElementById('medFormHeader').textContent = '➕ Thêm Thuốc Mới Vào Database';
+    };
+
+    window.resetMedicationForm = function() {
+      document.getElementById('medFormId').value = '';
+      document.getElementById('medFormVersion').value = '1';
+      document.getElementById('medName').value = '';
+      document.getElementById('medGenericName').value = '';
+      document.getElementById('medBrandName').value = '';
+      document.getElementById('medAliases').value = '';
+      document.getElementById('medDosageForm').value = '';
+      document.getElementById('medStrength').value = '';
+      document.getElementById('medRoute').value = '';
+      document.getElementById('medManufacturer').value = '';
+
+      document.getElementById('medDoseType').value = 'mg_kg_dose';
+      document.getElementById('medDoseValue').value = '';
+      document.getElementById('medDoseFrequency').value = '';
+      document.getElementById('medMaxPerDose').value = '';
+      document.getElementById('medMaxPerDay').value = '';
+      document.getElementById('medMaxPerKgPerDay').value = '';
+      document.getElementById('medMinAge').value = '';
+      document.getElementById('medMaxAge').value = '';
+      document.getElementById('medMinWeight').value = '';
+      document.getElementById('medMaxWeight').value = '';
+
+      document.getElementById('medLiquidMg').value = '';
+      document.getElementById('medLiquidMl').value = '';
+      document.getElementById('medLiquidConc').value = '';
+
+      document.getElementById('medReTotalMg').value = '';
+      document.getElementById('medReFinalMl').value = '';
+      document.getElementById('medReWaterMl').value = '';
+      document.getElementById('medReInstructions').value = '';
+
+      document.getElementById('medSourceName').value = '';
+      document.getElementById('medSourceUrl').value = '';
+      document.getElementById('medVerifiedDate').value = '';
+      document.getElementById('medVerifiedBy').value = '';
+      document.getElementById('medStatus').value = 'unverified';
+      document.getElementById('medNotes').value = '';
+    };
+
+    window.saveMedicationFromForm = function() {
+      const id = document.getElementById('medFormId').value;
+      const name = document.getElementById('medName').value.trim();
+      const genericName = document.getElementById('medGenericName').value.trim();
+
+      if (!name) {
+        alert("Tên thuốc không được để trống.");
+        return;
+      }
+
+      const medData = {
+        id: id || generateUniqueId(),
+        name,
+        genericName,
+        brandName: document.getElementById('medBrandName').value.trim(),
+        aliases: document.getElementById('medAliases').value.split(',').map(s => s.trim()).filter(Boolean),
+        dosageForm: document.getElementById('medDosageForm').value.trim(),
+        strength: document.getElementById('medStrength').value.trim(),
+        route: document.getElementById('medRoute').value.trim(),
+        packageSize: "",
+        manufacturer: document.getElementById('medManufacturer').value.trim(),
+        dose: {
+          type: document.getElementById('medDoseType').value,
+          value: parseFloat(document.getElementById('medDoseValue').value) || null,
+          unit: "mg",
+          frequency: parseInt(document.getElementById('medDoseFrequency').value, 10) || null,
+          maxPerDose: parseFloat(document.getElementById('medMaxPerDose').value) || null,
+          maxPerDay: parseFloat(document.getElementById('medMaxPerDay').value) || null,
+          maxPerKgPerDay: parseFloat(document.getElementById('medMaxPerKgPerDay').value) || null,
+          minAge: parseFloat(document.getElementById('medMinAge').value) || null,
+          maxAge: parseFloat(document.getElementById('medMaxAge').value) || null,
+          minWeight: parseFloat(document.getElementById('medMinWeight').value) || null,
+          maxWeight: parseFloat(document.getElementById('medMaxWeight').value) || null
+        },
+        liquid: {
+          strengthMg: parseFloat(document.getElementById('medLiquidMg').value) || null,
+          volumeMl: parseFloat(document.getElementById('medLiquidMl').value) || null,
+          concentrationMgMl: parseFloat(document.getElementById('medLiquidConc').value) || null
+        },
+        reconstitution: {
+          totalDrugMg: parseFloat(document.getElementById('medReTotalMg').value) || null,
+          finalVolumeMl: parseFloat(document.getElementById('medReFinalMl').value) || null,
+          waterToAddMl: parseFloat(document.getElementById('medReWaterMl').value) || null,
+          instructions: document.getElementById('medReInstructions').value.trim()
+        },
+        source: {
+          name: document.getElementById('medSourceName').value.trim(),
+          url: document.getElementById('medSourceUrl').value.trim(),
+          verifiedDate: document.getElementById('medVerifiedDate').value,
+          verifiedBy: document.getElementById('medVerifiedBy').value.trim()
+        },
+        notes: document.getElementById('medNotes').value.trim(),
+        status: document.getElementById('medStatus').value,
+        version: parseInt(document.getElementById('medFormVersion').value, 10) || 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      if (medData.liquid.strengthMg && medData.liquid.volumeMl && !medData.liquid.concentrationMgMl) {
+        medData.liquid.concentrationMgMl = medData.liquid.strengthMg / medData.liquid.volumeMl;
+      }
+
+      const existingIdx = window.appState.medications.findIndex(m => m.id === medData.id);
+
+      if (existingIdx >= 0) {
+        const oldMed = window.appState.medications[existingIdx];
+        medData.version = (oldMed.version || 1) + 1;
+        medData.createdAt = oldMed.createdAt;
+
+        if (window.appState.settings.autoBackup) createInternalBackup(`Trước khi sửa: ${oldMed.name}`);
+
+        const diffs = computeObjectDiff(oldMed, medData);
+        if (diffs.length > 0) {
+          window.appState.history.unshift({
+            medicationId: medData.id,
+            medicationName: medData.name,
+            version: medData.version,
+            changedAt: new Date().toISOString(),
+            changedBy: "Người dùng (User)",
+            snapshot: JSON.parse(JSON.stringify(oldMed)),
+            changes: diffs
+          });
+        }
+
+        window.appState.medications[existingIdx] = medData;
+        showToast(`✓ Đã cập nhật ${medData.name} (v${medData.version})`, () => {
+          undoLastChange();
+        });
+      } else {
+        window.appState.medications.unshift(medData);
+        showToast(`✓ Đã thêm thuốc mới: ${medData.name}`);
+      }
+
+      safeSaveState();
+      resetMedicationForm();
+      switchTab('tab-database');
+    };
+
+    window.editMedication = function(medId) {
+      const med = window.appState.medications.find(m => m.id === medId);
+      if (!med) return;
+
+      switchTab('tab-add-med');
+      document.getElementById('medFormHeader').textContent = `✏️ Chỉnh Sửa: ${med.name} (v${med.version || 1})`;
+      document.getElementById('medFormId').value = med.id;
+      document.getElementById('medFormVersion').value = med.version || 1;
+
+      document.getElementById('medName').value = med.name || '';
+      document.getElementById('medGenericName').value = med.genericName || '';
+      document.getElementById('medBrandName').value = med.brandName || '';
+      document.getElementById('medAliases').value = (med.aliases || []).join(', ');
+      document.getElementById('medDosageForm').value = med.dosageForm || '';
+      document.getElementById('medStrength').value = med.strength || '';
+      document.getElementById('medRoute').value = med.route || '';
+      document.getElementById('medManufacturer').value = med.manufacturer || '';
+
+      if (med.dose) {
+        document.getElementById('medDoseType').value = med.dose.type || 'mg_kg_dose';
+        document.getElementById('medDoseValue').value = med.dose.value ?? '';
+        document.getElementById('medDoseFrequency').value = med.dose.frequency ?? '';
+        document.getElementById('medMaxPerDose').value = med.dose.maxPerDose ?? '';
+        document.getElementById('medMaxPerDay').value = med.dose.maxPerDay ?? '';
+        document.getElementById('medMaxPerKgPerDay').value = med.dose.maxPerKgPerDay ?? '';
+        document.getElementById('medMinAge').value = med.dose.minAge ?? '';
+        document.getElementById('medMaxAge').value = med.dose.maxAge ?? '';
+        document.getElementById('medMinWeight').value = med.dose.minWeight ?? '';
+        document.getElementById('medMaxWeight').value = med.dose.maxWeight ?? '';
+      }
+
+      if (med.liquid) {
+        document.getElementById('medLiquidMg').value = med.liquid.strengthMg ?? '';
+        document.getElementById('medLiquidMl').value = med.liquid.volumeMl ?? '';
+        document.getElementById('medLiquidConc').value = med.liquid.concentrationMgMl ?? '';
+      }
+
+      if (med.reconstitution) {
+        document.getElementById('medReTotalMg').value = med.reconstitution.totalDrugMg ?? '';
+        document.getElementById('medReFinalMl').value = med.reconstitution.finalVolumeMl ?? '';
+        document.getElementById('medReWaterMl').value = med.reconstitution.waterToAddMl ?? '';
+        document.getElementById('medReInstructions').value = med.reconstitution.instructions || '';
+      }
+
+      if (med.source) {
+        document.getElementById('medSourceName').value = med.source.name || '';
+        document.getElementById('medSourceUrl').value = med.source.url || '';
+        document.getElementById('medVerifiedDate').value = med.source.verifiedDate || '';
+        document.getElementById('medVerifiedBy').value = med.source.verifiedBy || '';
+      }
+
+      document.getElementById('medStatus').value = med.status || 'unverified';
+      document.getElementById('medNotes').value = med.notes || '';
+    };
+
+    window.duplicateMedication = function(medId) {
+      const original = window.appState.medications.find(m => m.id === medId);
+      if (!original) return;
+
+      const clone = JSON.parse(JSON.stringify(original));
+      clone.id = generateUniqueId();
+      clone.name = `${clone.name} (Bản sao)`;
+      clone.version = 1;
+      clone.createdAt = new Date().toISOString();
+      clone.updatedAt = new Date().toISOString();
+
+      window.appState.medications.unshift(clone);
+      safeSaveState();
+      renderDatabaseList();
+      showToast(`✓ Đã nhân bản thành công với ID mới!`);
+    };
+
+    window.deleteMedication = function(medId) {
+      const med = window.appState.medications.find(m => m.id === medId);
+      if (!med) return;
+
+      const performDelete = () => {
+        if (window.appState.settings.autoBackup) createInternalBackup(`Trước khi xóa: ${med.name}`);
+
+        window.appState.deletedRecords.push({
+          deletedAt: new Date().toISOString(),
+          record: JSON.parse(JSON.stringify(med))
+        });
+
+        window.appState.medications = window.appState.medications.filter(m => m.id !== medId);
+        safeSaveState();
+        renderDatabaseList();
+        showToast(`✓ Đã xóa ${med.name}`, () => {
+          window.appState.medications.unshift(med);
+          safeSaveState();
+          renderDatabaseList();
+        });
+        closeModal();
+      };
+
+      if (window.appState.settings.confirmActions) {
+        const body = document.createElement('div');
+        body.innerHTML = `
+          <p>Bạn có chắc chắn muốn xóa thuốc <strong>${escapeHtml(med.name)}</strong>?</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">Hệ thống sẽ tự động sao lưu và chuyển vào thùng rác.</p>
+        `;
+        openModal("Xác Nhận Xóa Thuốc", body, [
+          { text: "Hủy", className: "btn-secondary", onClick: closeModal },
+          { text: "Xác Nhận Xóa", className: "btn-danger", onClick: performDelete }
+        ]);
+      } else {
+        performDelete();
+      }
+    };
+
+    function computeObjectDiff(oldObj, newObj, prefix = '') {
+      let diffs = [];
+      const keys = new Set([...Object.keys(oldObj || {}), ...Object.keys(newObj || {})]);
+
+      keys.forEach(k => {
+        if (['updatedAt', 'version', 'createdAt'].includes(k)) return;
+        const oldVal = oldObj ? oldObj[k] : undefined;
+        const newVal = newObj ? newObj[k] : undefined;
+
+        if (typeof oldVal === 'object' && oldVal !== null && typeof newVal === 'object' && newVal !== null) {
+          diffs = diffs.concat(computeObjectDiff(oldVal, newVal, `${prefix}${k}.`));
+        } else if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
+          diffs.push({
+            field: `${prefix}${k}`,
+            oldValue: oldVal === undefined ? null : oldVal,
+            newValue: newVal === undefined ? null : newVal
+          });
+        }
+      });
+      return diffs;
+    }
+
+    window.undoLastChange = function() {
+      if (!window.appState.history || window.appState.history.length === 0) {
+        alert("Không có thay đổi nào để hoàn tác.");
+        return;
+      }
+      const lastHist = window.appState.history.shift();
+      const medIdx = window.appState.medications.findIndex(m => m.id === lastHist.medicationId);
+      if (medIdx >= 0 && lastHist.snapshot) {
+        const restored = lastHist.snapshot;
+        restored.version = (window.appState.medications[medIdx].version || 1) + 1;
+        restored.updatedAt = new Date().toISOString();
+        window.appState.medications[medIdx] = restored;
+        safeSaveState();
+        renderDatabaseList();
+        renderHistoryList();
+        showToast(`✓ Đã hoàn tác về phiên bản trước của ${restored.name}`);
+      }
+    };
+
+    window.renderHistoryList = function() {
+      const container = document.getElementById('historyListContainer');
+      const hist = window.appState.history || [];
+
+      if (hist.length === 0) {
+        container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Chưa có lịch sử thay đổi nào.</div>';
+        return;
+      }
+
+      container.innerHTML = hist.map((h, idx) => {
+        const changesHtml = (h.changes || []).map(c => `
+          <tr>
+            <td><strong>${escapeHtml(c.field)}</strong></td>
+            <td class="diff-old">${escapeHtml(String(c.oldValue))}</td>
+            <td class="diff-new">${escapeHtml(String(c.newValue))}</td>
+          </tr>
+        `).join('');
+
+        return `
+          <div class="card" style="margin-bottom: 10px;">
+            <div class="card-title">
+              <span>💊 ${escapeHtml(h.medicationName || 'Thuốc')} (v${h.version})</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(h.changedAt)}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;">Bởi: ${escapeHtml(h.changedBy || 'User')}</div>
+            <table class="diff-table">
+              <thead>
+                <tr><th>Trường</th><th>Cũ</th><th>Mới</th></tr>
+              </thead>
+              <tbody>
+                ${changesHtml || '<tr><td colspan="3">Không có chi tiết trường</td></tr>'}
+              </tbody>
+            </table>
+            <div style="margin-top: 8px;">
+              <button class="btn btn-sm btn-secondary" onclick="restoreHistoricalVersion(${idx})">↩️ Khôi phục phiên bản này</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    window.restoreHistoricalVersion = function(historyIndex) {
+      const h = window.appState.history[historyIndex];
+      if (!h || !h.snapshot) return;
+
+      const performRestore = () => {
+        if (window.appState.settings.autoBackup) createInternalBackup(`Trước khi restore v${h.version} của ${h.medicationName}`);
+        
+        const medIdx = window.appState.medications.findIndex(m => m.id === h.medicationId);
+        const restoredData = JSON.parse(JSON.stringify(h.snapshot));
+        
+        const currentVersion = medIdx >= 0 ? (window.appState.medications[medIdx].version || 1) : 1;
+        restoredData.version = currentVersion + 1;
+        restoredData.updatedAt = new Date().toISOString();
+
+        if (medIdx >= 0) {
+          window.appState.medications[medIdx] = restoredData;
+        } else {
+          window.appState.medications.unshift(restoredData);
+        }
+
+        window.appState.history.unshift({
+          medicationId: restoredData.id,
+          medicationName: restoredData.name,
+          version: restoredData.version,
+          changedAt: new Date().toISOString(),
+          changedBy: "Khôi phục từ v" + h.version,
+          snapshot: restoredData,
+          changes: [{ field: "restore_version", oldValue: `v${currentVersion}`, newValue: `v${restoredData.version}` }]
+        });
+
+        safeSaveState();
+        renderDatabaseList();
+        renderHistoryList();
+        showToast(`✓ Đã khôi phục phiên bản thành công (v${restoredData.version})`);
+        closeModal();
+      };
+
+      const body = document.createElement('div');
+      body.innerHTML = `
+        <div class="alert alert-warning">
+          ⚠ Thao tác này sẽ tạo một phiên bản mới dựa trên dữ liệu cũ (v${h.version}). Lịch sử không bị xóa.
+        </div>
+        <p>Thuốc: <strong>${escapeHtml(h.medicationName)}</strong></p>
+      `;
+
+      openModal("Xác Nhận Khôi Phục Phiên Bản", body, [
+        { text: "Hủy", className: "btn-secondary", onClick: closeModal },
+        { text: "Khôi Phục", className: "btn-primary", onClick: performRestore }
+      ]);
+    };
+
+    window.runDatabaseAudit = function() {
+      const summaryBox = document.getElementById('auditSummaryContainer');
+      const detailsBox = document.getElementById('auditDetailsContainer');
+      const meds = window.appState.medications || [];
+
+      let missingSource = 0, missingDose = 0, missingConc = 0, dataErrors = 0, duplicates = 0, fullyValid = 0;
+      let errorItems = [];
+      const seenNames = new Map();
+      const seenIds = new Set();
+
+      meds.forEach(m => {
+        let isErr = false;
+        let reasons = [];
+
+        if (seenIds.has(m.id)) {
+          isErr = true;
+          reasons.push("Trùng ID thuốc.");
+        }
+        seenIds.add(m.id);
+
+        if (!m.name || !m.name.trim()) {
+          isErr = true;
+          reasons.push("Tên thuốc bị để trống.");
+        }
+
+        const normName = removeVietnameseTones((m.name || '').toLowerCase().trim());
+        if (seenNames.has(normName)) {
+          duplicates++;
+          reasons.push(`Có thể trùng tên với thuốc khác.`);
+        } else {
+          seenNames.set(normName, m.id);
+        }
+
+        if (!m.source || !m.source.name || !m.source.name.trim()) {
+          missingSource++;
+          reasons.push("Thiếu nguồn dữ liệu.");
+        }
+
+        if (!m.dose || m.dose.value === null || m.dose.value <= 0) {
+          missingDose++;
+          reasons.push("Chưa nhập thông số liều hoặc liều <= 0.");
+        }
+
+        if (m.liquid && (m.liquid.strengthMg || m.liquid.volumeMl)) {
+          if (!m.liquid.strengthMg || !m.liquid.volumeMl || m.liquid.strengthMg <= 0 || m.liquid.volumeMl <= 0) {
+            missingConc++;
+            reasons.push("Dữ liệu dạng lỏng không đầy đủ.");
+          }
+        }
+
+        if (isErr || reasons.length > 0) {
+          if (isErr) dataErrors++;
+          errorItems.push({ med: m, reasons });
+        } else {
+          fullyValid++;
+        }
+      });
+
+      summaryBox.innerHTML = `
+        <div class="grid-3" style="margin-top: 10px;">
+          <div class="stat-card"><div class="stat-val" style="color: var(--success);">${fullyValid}</div><div class="stat-lbl">✓ Đủ dữ liệu &amp; Nguồn</div></div>
+          <div class="stat-card"><div class="stat-val" style="color: var(--warning);">${missingSource}</div><div class="stat-lbl">⚠ Thiếu nguồn</div></div>
+          <div class="stat-card"><div class="stat-val" style="color: var(--warning);">${missingDose}</div><div class="stat-lbl">⚠ Thiếu giá trị liều</div></div>
+          <div class="stat-card"><div class="stat-val" style="color: var(--warning);">${missingConc}</div><div class="stat-lbl">⚠ Lỗi dạng lỏng</div></div>
+          <div class="stat-card"><div class="stat-val" style="color: var(--danger);">${dataErrors}</div><div class="stat-lbl">✕ Lỗi nghiêm trọng</div></div>
+          <div class="stat-card"><div class="stat-val" style="color: var(--warning);">${duplicates}</div><div class="stat-lbl">⚠ Trùng lặp tiềm năng</div></div>
+        </div>
+      `;
+
+      if (errorItems.length === 0) {
+        detailsBox.innerHTML = `<div class="alert alert-info" style="margin-top: 10px;">🎉 Cơ sở dữ liệu hoàn hảo! Không phát hiện lỗi cấu trúc.</div>`;
+      } else {
+        detailsBox.innerHTML = `
+          <h4>Danh Sách Thuốc Cần Chú Ý (${errorItems.length}):</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+            ${errorItems.map(item => `
+              <div class="card" style="margin-bottom: 4px; padding: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong>${escapeHtml(item.med.name || 'Không tên')}</strong>
+                  <button class="btn btn-sm btn-secondary" onclick="editMedication('${item.med.id}')">✏️ Sửa Ngay</button>
+                </div>
+                <ul style="padding-left: 20px; font-size: 0.8rem; color: var(--danger); margin-top: 4px;">
+                  ${item.reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                </ul>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    };
+
+    window.runAiDiagnosticSimulation = function() {
+      const container = document.getElementById('aiSuggestionContainer');
+      const meds = window.appState.medications || [];
+
+      if (meds.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">Chưa có thuốc trong database để AI phân tích.</div>';
+        return;
+      }
+
+      let suggestions = [];
+      meds.forEach(m => {
+        if (m.status === 'unverified' || !m.source?.name) {
+          suggestions.push({
+            drugId: m.id,
+            drugName: m.name,
+            field: "status & source",
+            currentValue: `${m.status} | Nguồn: ${m.source?.name || 'Chưa có'}`,
+            suggestedValue: "needs-review | Bổ sung Guideline / Dược thư",
+            sourceUrl: "https://duocthuquocgia.vn",
+            rationale: "AI phát hiện thuốc đang ở trạng thái unverified. Đề xuất chuyển sang needs-review để dược sĩ kiểm tra."
+          });
+        }
+        if (m.dose && m.dose.type === 'mg_kg_day' && !m.dose.frequency) {
+          suggestions.push({
+            drugId: m.id,
+            drugName: m.name,
+            field: "dose.frequency",
+            currentValue: "null",
+            suggestedValue: "2 (hoặc 3 lần/ngày)",
+            sourceUrl: "Tài liệu Dược thư lâm sàng",
+            rationale: "Liều mg/kg/ngày cần số lần dùng để chia liều chuẩn xác."
+          });
+        }
+      });
+
+      if (suggestions.length === 0) {
+        container.innerHTML = `<div class="alert alert-info">✓ AI Assistant: Toàn bộ dữ liệu đạt chuẩn định dạng y khoa.</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <h4>Phát Hiện Của AI Assistant (${suggestions.length}):</h4>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+          ${suggestions.map(s => `
+            <div class="card" style="border-left: 4px solid var(--warning);">
+              <div style="display: flex; justify-content: space-between;">
+                <strong>Thuốc: ${escapeHtml(s.drugName)}</strong>
+                <span class="status-badge badge-needs-review">CHỜ XÁC NHẬN</span>
+              </div>
+              <div style="font-size: 0.85rem; margin: 6px 0;">
+                <div>Trường: <code>${escapeHtml(s.field)}</code></div>
+                <div>Hiện tại: <span class="diff-old">${escapeHtml(s.currentValue)}</span></div>
+                <div>Đề xuất: <span class="diff-new">${escapeHtml(s.suggestedValue)}</span></div>
+                <div style="font-style: italic; color: var(--text-muted); margin-top: 4px;">Lý do: ${escapeHtml(s.rationale)}</div>
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px;">
+                <button class="btn btn-sm btn-secondary" onclick="this.closest('.card').remove()">GIỮ NGUYÊN</button>
+                <button class="btn btn-sm btn-primary" onclick="applyAiSuggestion('${s.drugId}', '${s.field}', '${escapeHtml(s.suggestedValue)}')">ÁP DỤNG</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    };
+
+    window.applyAiSuggestion = function(drugId, field, suggestedValue) {
+      const med = window.appState.medications.find(m => m.id === drugId);
+      if (!med) return;
+
+      if (window.appState.settings.autoBackup) createInternalBackup(`Trước khi áp dụng gợi ý AI: ${med.name}`);
+
+      const oldSnapshot = JSON.parse(JSON.stringify(med));
+      med.version = (med.version || 1) + 1;
+      med.updatedAt = new Date().toISOString();
+
+      if (field === "status & source") {
+        med.status = "needs-review";
+      } else if (field === "dose.frequency") {
+        med.dose.frequency = 2;
+      }
+
+      window.appState.history.unshift({
+        medicationId: med.id,
+        medicationName: med.name,
+        version: med.version,
+        changedAt: new Date().toISOString(),
+        changedBy: "Người dùng chấp thuận đề xuất AI",
+        snapshot: oldSnapshot,
+        changes: [{ field, oldValue: "cũ", newValue: suggestedValue }]
+      });
+
+      safeSaveState();
+      showToast(`✓ Đã cập nhật ${med.name}`);
+      runAiDiagnosticSimulation();
+    };
+
+    function createInternalBackup(description = "Manual Backup") {
+      const backupObj = {
+        id: generateUniqueId(),
+        timestamp: new Date().toISOString(),
+        description,
+        medCount: (window.appState.medications || []).length,
+        historyCount: (window.appState.history || []).length,
+        stateSnapshot: JSON.parse(JSON.stringify(window.appState))
+      };
+
+      window.appState.backups.unshift(backupObj);
+      const maxB = parseInt(window.appState.settings.maxBackups, 10) || 10;
+      if (window.appState.backups.length > maxB) {
+        window.appState.backups = window.appState.backups.slice(0, maxB);
+      }
+    }
+
+    window.renderBackupList = function() {
+      const container = document.getElementById('internalBackupsList');
+      const backups = window.appState.backups || [];
+
+      if (backups.length === 0) {
+        container.innerHTML = '<div style="padding: 15px; color: var(--text-muted); text-align: center;">Chưa có bản sao lưu nội bộ nào.</div>';
+        return;
+      }
+
+      container.innerHTML = backups.map((b, idx) => `
+        <div style="border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>${escapeHtml(b.description || 'Sao lưu')}</strong>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${formatDate(b.timestamp)} | Thuốc: ${b.medCount}</div>
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="restoreInternalBackup(${idx})">Khôi phục</button>
+        </div>
+      `).join('');
+    };
+
+    window.restoreInternalBackup = function(index) {
+      const b = window.appState.backups[index];
+      if (!b || !b.stateSnapshot) return;
+
+      const performRestore = () => {
+        window.appState = JSON.parse(JSON.stringify(b.stateSnapshot));
+        safeSaveState();
+        renderDatabaseList();
+        renderBackupList();
+        updateDashboard();
+        showToast(`✓ Đã khôi phục toàn bộ database!`);
+        closeModal();
+      };
+
+      const body = document.createElement('div');
+      body.innerHTML = `<p>Bạn có chắc muốn khôi phục database tại <strong>${formatDate(b.timestamp)}</strong>?</p>`;
+      openModal("Xác Nhận Phục Hồi Sao Lưu", body, [
+        { text: "Hủy", className: "btn-secondary", onClick: closeModal },
+        { text: "Khôi Phục", className: "btn-danger", onClick: performRestore }
+      ]);
+    };
+
+    window.exportBackupFile = function() {
+      const backupData = {
+        schemaVersion: window.appState.schemaVersion,
+        databaseVersion: window.appState.databaseVersion,
+        exportedAt: new Date().toISOString(),
+        medications: window.appState.medications,
+        history: window.appState.history,
+        deletedRecords: window.appState.deletedRecords,
+        settings: window.appState.settings
+      };
+
+      const dateStr = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 16);
+      downloadFile(JSON.stringify(backupData, null, 2), `medcalc-backup-${dateStr}.json`, 'application/json');
+      showToast("✓ Đã tạo file sao lưu JSON an toàn.");
+    };
+
+    window.onBackupFileSelected = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!parsed || !Array.isArray(parsed.medications)) {
+            alert("❌ File không hợp lệ: Thiếu danh sách thuốc.");
+            return;
+          }
+          pendingImportData = parsed;
+          document.getElementById('importPreReviewArea').style.display = 'block';
+          showToast(`Đã nạp file: ${parsed.medications.length} thuốc.`);
+        } catch (err) {
+          alert("❌ Không thể đọc file JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.executeImportBackup = function() {
+      if (!pendingImportData) return;
+      const mode = document.getElementById('importModeSelect').value;
+      const importedMeds = pendingImportData.medications || [];
+
+      createInternalBackup("Trước khi import file backup");
+      let added = 0, updated = 0, skipped = 0;
+
+      if (mode === 'overwrite') {
+        window.appState.medications = importedMeds;
+        if (Array.isArray(pendingImportData.history)) window.appState.history = pendingImportData.history;
+        added = importedMeds.length;
+      } else {
+        importedMeds.forEach(newMed => {
+          const idx = window.appState.medications.findIndex(m => m.id === newMed.id);
+          if (idx >= 0) {
+            if (mode === 'merge' || mode === 'update_existing') {
+              window.appState.medications[idx] = newMed;
+              updated++;
+            } else {
+              skipped++;
+            }
+          } else {
+            window.appState.medications.push(newMed);
+            added++;
+          }
+        });
+      }
+
+      safeSaveState();
+      document.getElementById('importPreReviewArea').style.display = 'none';
+      document.getElementById('importFileInput').value = '';
+      pendingImportData = null;
+      renderDatabaseList();
+      updateDashboard();
+      showToast(`✓ Hoàn tất import: Thêm ${added}, Cập nhật ${updated}`);
+    };
+
+    window.exportMedicationsCsv = function() {
+      const meds = window.appState.medications || [];
+      if (meds.length === 0) {
+        alert("Database rỗng.");
+        return;
+      }
+
+      const headers = ["ID", "Tên Thuốc", "Hoạt Chất", "Hàm Lượng", "Kiểu Liều", "Liều", "Số Lần/Ngày", "Trạng Thái", "Nguồn"];
+      const rows = meds.map(m => [
+        `"${m.id}"`,
+        `"${(m.name || '').replace(/"/g, '""')}"`,
+        `"${(m.genericName || '').replace(/"/g, '""')}"`,
+        `"${(m.strength || '').replace(/"/g, '""')}"`,
+        `"${m.dose?.type || ''}"`,
+        `"${m.dose?.value ?? ''}"`,
+        `"${m.dose?.frequency ?? ''}"`,
+        `"${m.status || ''}"`,
+        `"${(m.source?.name || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      downloadFile(csvContent, `medcalc-medications-${Date.now()}.csv`, 'text/csv;charset=utf-8;');
+    };
+
+    window.exportSingleMedMarkdown = function(medId) {
+      const m = window.appState.medications.find(x => x.id === medId);
+      if (!m) return;
+      const md = [
+        `# ${m.name}`,
+        `- **Hoạt chất:** ${m.genericName || 'N/A'}`,
+        `- **Hàm lượng:** ${m.strength || 'N/A'}`,
+        `- **Liều:** ${m.dose?.value ?? 'N/A'} (${m.dose?.type || 'N/A'}) - ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : ''}`,
+        `- **Trạng thái:** ${m.status}`,
+        `- **Nguồn:** ${m.source?.name || 'Chưa có'}`,
+        `- **Ghi chú:** ${m.notes || 'Không có'}`
+      ].join('\n');
+      downloadFile(md, `${m.name.replace(/\s+/g, '_')}.md`, 'text/markdown');
+    };
+
+    window.exportAllMedsMarkdown = function() {
+      const meds = window.appState.medications || [];
+      const lines = [
+        `# MEDCALC — BÁO CÁO DATABASE THUỐC`,
+        `*Tổng số thuốc: ${meds.length}*\n---\n`
+      ];
+      meds.forEach((m, i) => {
+        lines.push(`### ${i + 1}. ${m.name}`);
+        lines.push(`- **Hoạt chất:** ${m.genericName || 'N/A'}`);
+        lines.push(`- **Liều:** ${m.dose?.value ?? 'N/A'} (${m.dose?.type || 'N/A'}) - ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : ''}`);
+        lines.push(`- **Nguồn:** ${m.source?.name || 'Chưa rõ'}\n`);
+      });
+      downloadFile(lines.join('\n'), `medcalc-database-report-${Date.now()}.md`, 'text/markdown');
+    };
+
+    function downloadFile(content, filename, contentType) {
+      const a = document.createElement('a');
+      const blob = new Blob([content], { type: contentType });
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    }
+
+    window.saveSettingsForm = function() {
+      window.appState.settings.unitWeight = document.getElementById('settingUnitWeight').value;
+      window.appState.settings.roundMl = document.getElementById('settingRoundMl').value;
+      window.appState.settings.maxBackups = parseInt(document.getElementById('settingMaxBackups').value, 10);
+      window.appState.settings.confirmActions = document.getElementById('settingConfirmEdit').value === 'yes';
+      window.appState.settings.autoBackup = document.getElementById('settingAutoBackupCheck').checked;
+
+      safeSaveState();
+      showToast("✓ Đã lưu cài đặt hệ thống!");
+    };
+
+    window.insertDemoClinicalData = function() {
+      INITIAL_VERIFIED_MEDS.forEach(d => {
+        if (!window.appState.medications.some(m => m.name === d.name)) {
+          window.appState.medications.push(JSON.parse(JSON.stringify(d)));
+        }
+      });
+      safeSaveState();
+      renderDatabaseList();
+      updateDashboard();
+      populateCalcMedDropdown();
+      showToast("✓ Đã nạp dữ liệu mẫu Dược Thư QG.");
+    };
+
+    window.confirmWipeDatabase = function() {
+      const performWipe = () => {
+        createInternalBackup("Trước khi xóa sạch database");
+        window.appState.medications = [];
+        window.appState.history = [];
+        safeSaveState();
+        renderDatabaseList();
+        updateDashboard();
+        populateCalcMedDropdown();
+        showToast("✓ Đã xóa sạch database.");
+        closeModal();
+      };
+
+      const body = document.createElement('div');
+      body.innerHTML = `<p>Bạn có chắc chắn muốn <strong>XÓA SẠCH TOÀN BỘ THUỐC VÀ LỊCH SỬ</strong>?</p>`;
+      openModal("Cảnh Báo Xóa Database", body, [
+        { text: "Hủy", className: "btn-secondary", onClick: closeModal },
+        { text: "Tôi Chắc Chắn Xóa", className: "btn-danger", onClick: performWipe }
+      ]);
+    };
+
+    window.viewMedicationDetailModal = function(medId) {
+      const m = window.appState.medications.find(x => x.id === medId);
+      if (!m) return;
+
+      const body = document.createElement('div');
+      body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem;">
+          <div><strong>Tên Thuốc:</strong> ${escapeHtml(m.name)} (v${m.version || 1})</div>
+          <div><strong>Hoạt Chất:</strong> ${escapeHtml(m.genericName || 'Chưa rõ')}</div>
+          <div><strong>Dạng:</strong> ${escapeHtml(m.dosageForm || 'N/A')} | <strong>Đường dùng:</strong> ${escapeHtml(m.route || 'N/A')}</div>
+          <hr>
+          <div><strong>Liều:</strong> ${m.dose?.value ?? 'N/A'} (${m.dose?.type || 'N/A'})</div>
+          <div><strong>Tần suất:</strong> ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : 'N/A'}</div>
+          <div><strong>Nguồn Dữ Liệu:</strong> ${escapeHtml(m.source?.name || 'CHƯA CÓ NGUỒN')}</div>
+          <div><strong>Trạng thái:</strong> <span class="status-badge badge-${m.status}">${m.status}</span></div>
+          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(m.notes)}</div>` : ''}
+        </div>
+      `;
+
+      openModal(`Chi Tiết: ${m.name}`, body, [
+        { text: "Đóng", className: "btn-secondary", onClick: closeModal },
+        { text: "🧮 Tính Liều", className: "btn-primary", onClick: () => { closeModal(); selectMedForCalculationDirect(m.id); } }
+      ]);
+    };
+
+    function updateDashboard() {
+      const meds = window.appState.medications || [];
+      let verified = 0, needsReview = 0, errorCount = 0;
+
+      meds.forEach(m => {
+        if (m.status === 'verified') verified++;
+        else if (m.status === 'needs-review') needsReview++;
+        else if (m.status === 'error') errorCount++;
+      });
+
+      const elTotal = document.getElementById('dashTotalMeds');
+      const elVer = document.getElementById('dashVerified');
+      const elRev = document.getElementById('dashNeedsReview');
+      const elErr = document.getElementById('dashError');
+
+      if (elTotal) elTotal.textContent = meds.length;
+      if (elVer) elVer.textContent = verified;
+      if (elRev) elRev.textContent = needsReview;
+      if (elErr) elErr.textContent = errorCount;
+    }
+
+    function generateUniqueId() {
+      return 'med_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function removeVietnameseTones(str) {
+      if (!str) return '';
+      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+    }
+
+    function formatDate(isoStr) {
+      if (!isoStr) return 'N/A';
+      try {
+        const d = new Date(isoStr);
+        return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      } catch (e) {
+        return isoStr;
+      }
+    }
+
+    function initApp() {
+      safeLoadState();
+      
+      const isDark = window.appState.settings.darkMode;
+      if (isDark) document.body.classList.add('dark-mode');
+
+      document.getElementById('btnThemeToggle').addEventListener('click', () => {
+        window.appState.settings.darkMode = !window.appState.settings.darkMode;
+        if (window.appState.settings.darkMode) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+        safeSaveState();
+      });
+
+      updateDashboard();
+      renderDatabaseList();
+      populateCalcMedDropdown();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+    <script src="pwa-install.js" defer></script>
+</body>
+</html>
