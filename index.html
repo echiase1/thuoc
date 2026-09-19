@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>MEDCALC — Clinical Medication Dose Calculator & Database</title>
+  
+  <!-- PWA MANIFEST & META TAGS CHUẨN HOÁ -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MEDCALC">
+  
+  <!-- ĐƯỜNG DẪN ICON CHUẨN NGANG HÀNG VỚI INDEX.HTML -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
   <style>
     :root {
       --primary: #0284c7;
@@ -330,12 +343,6 @@
     }
     .print-only { display: none; }
   </style>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2196F3">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MedCal-DrLuan">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
 
@@ -966,6 +973,9 @@
 
   <!-- PRINT ONLY CONTAINER -->
   <div id="printArea" class="print-only"></div>
+
+  <!-- NẠP THƯ VIỆN ĐĂNG KÝ VÀ CÀI ĐẶT PWA -->
+  <script src="./pwa-install.js" defer></script>
 
   <script>
     const SCHEMA_VERSION = 1;
@@ -2572,6 +2582,5 @@
       initApp();
     }
   </script>
-    <script src="pwa-install.js" defer></script>
 </body>
 </html>
