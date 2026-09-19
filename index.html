@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MEDCALC">
   
-  <!-- ĐƯỜNG DẪN ICON CHUẨN THƯ MỤC GỐC -->
+  <!-- ĐƯỜNG DẪN ICON CHUẨN NGANG HÀNG VỚI INDEX.HTML -->
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
   <link rel="apple-touch-icon" href="./icon-192.png">
 
@@ -83,14 +83,12 @@
       line-height: 1.5;
       padding-bottom: 75px;
       min-height: 100vh;
-      overflow-x: hidden;
-      width: 100%;
     }
 
     header.app-header {
       background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
       color: #ffffff;
-      padding: 12px 16px;
+      padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -100,17 +98,10 @@
       box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);
     }
 
-    .brand-box { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-box { display: flex; align-items: center; gap: 10px; }
     .brand-box h1 { font-size: 1.25rem; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; }
-    .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; }
     
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
     .theme-toggle-btn {
       background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -118,23 +109,23 @@
       padding: 6px 12px;
       cursor: pointer;
       color: #ffffff;
-      font-size: 0.88rem;
-      font-weight: 700;
+      font-size: 0.9rem;
       transition: background 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
     }
     .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.35); }
 
     .btn-install-header {
       background: #059669;
-      border-color: #34d399;
-      display: none; /* Hiển thị động qua JS khi PWA sẵn sàng */
+      border: 1px solid #34d399;
+      color: #ffffff;
+      display: none;
+      font-weight: 700;
+      align-items: center;
+      gap: 4px;
     }
+    .btn-install-header:hover { background: #047857; }
 
-    .container { max-width: 920px; margin: 0 auto; padding: 12px; width: 100%; }
+    .container { max-width: 920px; margin: 0 auto; padding: 16px; }
 
     .nav-desktop {
       display: none;
@@ -205,11 +196,9 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 16px;
+      padding: 18px;
       margin-bottom: 16px;
       box-shadow: var(--shadow-md);
-      width: 100%;
-      overflow: hidden;
     }
 
     .card-title {
@@ -223,50 +212,24 @@
       gap: 8px;
       border-bottom: 1px solid var(--primary-light);
       padding-bottom: 8px;
-      flex-wrap: wrap;
     }
     body.dark-mode .card-title { color: var(--primary); }
 
-    /* GRID HỆ THỐNG ĐÃ TỐI ƯU TRÁNH TRÀN DÒNG */
-    .grid-2, .grid-3, .grid-4 {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      width: 100%;
-    }
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
-    @media (min-width: 600px) {
+    @media (min-width: 620px) {
       .grid-2 { grid-template-columns: repeat(2, 1fr); }
       .grid-3 { grid-template-columns: repeat(3, 1fr); }
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (min-width: 820px) {
       .grid-4 { grid-template-columns: repeat(4, 1fr); }
     }
 
-    .form-group {
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      width: 100%;
-    }
-
-    label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      margin-bottom: 5px;
-      color: var(--text);
-      word-break: break-word;
-      white-space: normal;
-    }
+    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+    label { font-size: 0.82rem; font-weight: 700; margin-bottom: 5px; color: var(--text); }
     
     input[type="text"], input[type="number"], input[type="date"], select, textarea {
-      width: 100%;
-      max-width: 100%;
-      min-width: 0;
-      padding: 10px 12px;
+      padding: 10px 14px;
       border: 1.5px solid var(--border);
       border-radius: 8px;
       background: var(--card-bg);
@@ -275,12 +238,6 @@
       font-family: inherit;
       transition: all 0.2s;
     }
-
-    select {
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
@@ -306,7 +263,6 @@
     .status-badge {
       display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem;
       font-weight: 800; padding: 3px 9px; border-radius: 12px; text-transform: uppercase;
-      word-break: normal;
     }
     .badge-verified { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
     .badge-needs-review { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
@@ -316,7 +272,6 @@
     .alert {
       padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 0.86rem;
       display: flex; flex-direction: column; gap: 4px; line-height: 1.45;
-      word-break: break-word;
     }
     .alert-danger { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger); font-weight: 600; }
     .alert-warning { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning); }
@@ -333,7 +288,6 @@
     .calc-step-box {
       background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px;
       padding: 14px; margin-top: 12px; font-size: 0.88rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      word-break: break-word;
     }
     body.dark-mode .calc-step-box { background: #0a131f; border-color: #1e3a5f; }
     .calc-step-line { margin-bottom: 5px; }
@@ -345,9 +299,9 @@
       border-radius: 14px; padding: 22px; text-align: center; margin-top: 16px;
       box-shadow: 0 6px 20px rgba(2, 132, 199, 0.12);
     }
-    .final-result-val { font-size: 2.1rem; font-weight: 800; color: var(--primary-dark); margin: 6px 0; word-break: break-word; }
+    .final-result-val { font-size: 2.1rem; font-weight: 800; color: var(--primary-dark); margin: 6px 0; }
     body.dark-mode .final-result-val { color: var(--primary); }
-    .final-result-sub { font-size: 1.05rem; font-weight: 700; color: var(--text-muted); word-break: break-word; }
+    .final-result-sub { font-size: 1.05rem; font-weight: 700; color: var(--text-muted); }
 
     .med-item {
       padding: 14px; border: 1px solid var(--card-border); border-radius: 10px;
@@ -356,24 +310,24 @@
     }
     .med-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
     .med-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-    .med-name { font-weight: 800; font-size: 1.05rem; color: var(--primary-dark); word-break: break-word; }
+    .med-name { font-weight: 800; font-size: 1.05rem; color: var(--primary-dark); }
     body.dark-mode .med-name { color: var(--primary); }
-    .med-sub { font-size: 0.82rem; color: var(--text-muted); word-break: break-word; }
+    .med-sub { font-size: 0.82rem; color: var(--text-muted); }
     .med-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 
     .diff-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
-    .diff-table th, .diff-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; word-break: break-word; }
+    .diff-table th, .diff-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
     .diff-table th { background: var(--primary-light); color: var(--primary-dark); }
     .diff-old { background: var(--danger-bg); color: var(--danger); text-decoration: line-through; }
     .diff-new { background: var(--success-bg); color: var(--success); font-weight: 700; }
 
-    .toast-container { position: fixed; top: 75px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: calc(100% - 32px); }
+    .toast-container { position: fixed; top: 75px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
     .toast {
       padding: 12px 18px; border-radius: 10px; background: #0f172a; color: #ffffff;
       font-size: 0.88rem; box-shadow: 0 8px 24px rgba(0,0,0,0.25); display: flex;
       align-items: center; gap: 12px; animation: slideIn 0.25s ease-out; max-width: 340px;
     }
-    .toast-undo { background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.78rem; font-weight: bold; flex-shrink: 0; }
+    .toast-undo { background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.78rem; font-weight: bold; }
     @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
     .modal-backdrop {
@@ -387,7 +341,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 14px;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); padding-bottom: 10px; }
-    .modal-header h3 { font-size: 1.15rem; color: var(--primary-dark); font-weight: 800; word-break: break-word; }
+    .modal-header h3 { font-size: 1.15rem; color: var(--primary-dark); font-weight: 800; }
     body.dark-mode .modal-header h3 { color: var(--primary); }
     .modal-close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); }
 
@@ -411,8 +365,8 @@
         <span>Clinical Dose Calculator &amp; Evidence-Based Database</span>
       </div>
     </div>
-    <div class="header-actions">
-      <!-- NÚT CÀI ĐẶT APP ĐƯỢC TỰ ĐỘNG BẬT KHI ĐỦ ĐIỀU KIỆN -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <!-- NÚT CÀI ĐẶT DÙNG CHUNG (TỰ ĐỘNG BẬT KHI KHẢ DỤNG HOẶC TRÊN IOS) -->
       <button class="theme-toggle-btn btn-install-header" id="pwa-install-btn" title="Cài đặt ứng dụng vào màn hình chính">📲 Cài App</button>
       <button class="theme-toggle-btn" id="btnThemeToggle" title="Đổi chế độ sáng / tối">🌓 Giao diện</button>
     </div>
@@ -718,7 +672,7 @@
             <input type="text" id="medBrandName" placeholder="VD: Ospamox, Augmentin">
           </div>
           <div class="form-group">
-            <label for="medAliases">Biệt danh (cách nhau dấu phẩy):</label>
+            <label for="medAliases">Biệt danh / Aliases (cách nhau dấu phẩy):</label>
             <input type="text" id="medAliases" placeholder="VD: Amox, Amoxy">
           </div>
           <div class="form-group">
@@ -778,11 +732,11 @@
         </div>
         <div class="grid-4">
           <div class="form-group">
-            <label for="medMinAge">Tuổi Min (tháng):</label>
+            <label for="medMinAge">Tuổi Tối Thiểu (tháng):</label>
             <input type="number" id="medMinAge" placeholder="VD: 3">
           </div>
           <div class="form-group">
-            <label for="medMaxAge">Tuổi Max (tháng):</label>
+            <label for="medMaxAge">Tuổi Tối Đa (tháng):</label>
             <input type="number" id="medMaxAge" placeholder="VD: 144">
           </div>
           <div class="form-group">
@@ -1302,7 +1256,7 @@
       (window.appState.medications || []).forEach(m => {
         const opt = document.createElement('option');
         opt.value = m.id;
-        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'})`;
+        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'}) [${m.status}]`;
         select.appendChild(opt);
       });
 
@@ -2556,7 +2510,7 @@
           <div><strong>Tần suất:</strong> ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : 'N/A'}</div>
           <div><strong>Nguồn Dữ Liệu:</strong> ${escapeHtml(m.source?.name || 'CHƯA CÓ NGUỒN')}</div>
           <div><strong>Trạng thái:</strong> <span class="status-badge badge-${m.status}">${m.status}</span></div>
-          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(med.notes || m.notes)}</div>` : ''}
+          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(m.notes)}</div>` : ''}
         </div>
       `;
 
@@ -2639,7 +2593,74 @@
     }
   </script>
 
-  <!-- SCRIPT PWA TƯƠNG THÍCH ĐẦY ĐỦ ĐẶT CUỐI CÙNG -->
-  <script src="./pwa-install.js"></script>
+  <!-- BỘ ĐIỀU KHIỂN CÀI ĐẶT PWA CHO ANDROID & IOS -->
+  <script>
+    let pwaDeferredPrompt = null;
+    const pwaBtn = document.getElementById('pwa-install-btn');
+
+    // 1. Xử lý cho Android / Chrome PC
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      pwaDeferredPrompt = e;
+      if (pwaBtn) {
+        pwaBtn.style.display = 'inline-flex';
+        pwaBtn.onclick = async () => {
+          if (!pwaDeferredPrompt) return;
+          pwaDeferredPrompt.prompt();
+          const { outcome } = await pwaDeferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            pwaBtn.style.display = 'none';
+          }
+          pwaDeferredPrompt = null;
+        };
+      }
+    });
+
+    // 2. Xử lý nhận diện riêng cho iPhone/iPad (Safari)
+    const isIosDevice = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const isStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    if (isIosDevice && !isStandaloneMode) {
+      if (pwaBtn) {
+        pwaBtn.style.display = 'inline-flex';
+        pwaBtn.onclick = () => {
+          const body = document.createElement('div');
+          body.innerHTML = `
+            <p style="font-size:0.95rem; margin-bottom:12px;">Để cài đặt ứng dụng trên iPhone/iPad:</p>
+            <ol style="padding-left:20px; line-height:1.6; font-size:0.9rem;">
+              <li>Mở trang web bằng trình duyệt <strong>Safari</strong>.</li>
+              <li>Bấm vào biểu tượng <strong>Chia sẻ (⎋)</strong> ở thanh dưới màn hình.</li>
+              <li>Cuộn xuống chọn <strong>Thêm vào MH chính (Add to Home Screen)</strong>.</li>
+              <li>Nhấn <strong>Thêm</strong> ở góc trên bên phải.</li>
+            </ol>
+          `;
+          openModal("Cài Đặt Trên iPhone", body, [
+            { text: "Đã hiểu", className: "btn-primary", onClick: closeModal }
+          ]);
+        };
+      }
+
+      // Hiện thông báo hướng dẫn nhanh ở đáy màn hình cho iOS
+      window.addEventListener('load', () => {
+        const iosGuide = document.createElement('div');
+        iosGuide.id = 'iosInstallGuideBanner';
+        iosGuide.style.cssText = 'position:fixed;bottom:70px;left:15px;right:15px;background:#0f172a;color:#fff;padding:12px 14px;border-radius:10px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:1px solid #0284c7;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;';
+        iosGuide.innerHTML = `
+          <span>📲 <strong>Cài App:</strong> Bấm nút <strong>Chia sẻ (⎋)</strong> trên Safari &gt; <strong>Thêm vào MH chính</strong></span>
+          <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:#94a3b8;font-size:16px;cursor:pointer;padding-left:8px;">✕</button>
+        `;
+        document.body.appendChild(iosGuide);
+      });
+    }
+
+    // 3. Đăng ký Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => console.log('[PWA] Service Worker sẵn sàng:', reg.scope))
+          .catch(err => console.warn('[PWA] Đăng ký Service Worker thất bại:', err));
+      });
+    }
+  </script>
 </body>
 </html>
