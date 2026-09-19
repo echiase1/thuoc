@@ -81,7 +81,7 @@
       background-attachment: fixed;
       color: var(--text);
       line-height: 1.5;
-      padding-bottom: 75px;
+      padding-bottom: 85px;
       min-height: 100vh;
       overflow-x: hidden;
       width: 100%;
@@ -157,24 +157,32 @@
       background: var(--primary-light);
     }
 
+    /* THANH BOTTOM NAVIGATION CUỘN NGANG ĐẦY ĐỦ 10 CHỨC NĂNG */
     .nav-bottom {
       position: fixed;
       bottom: 0; left: 0; right: 0;
       background: var(--card-bg);
       border-top: 1px solid var(--border);
       display: flex;
-      justify-content: space-around;
-      padding: 8px 4px;
+      justify-content: flex-start;
+      padding: 6px 6px;
       z-index: 50;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
     }
+    .nav-bottom::-webkit-scrollbar { display: none; }
     @media (min-width: 768px) { .nav-bottom { display: none; } }
 
     .nav-tab {
       background: none; border: none; color: var(--text-muted);
       display: flex; flex-direction: column; align-items: center;
-      font-size: 0.68rem; padding: 4px; cursor: pointer; flex: 1;
+      font-size: 0.65rem; padding: 4px 10px; cursor: pointer;
+      flex: 0 0 auto;
+      min-width: 60px;
       font-weight: 500;
+      transition: color 0.15s;
     }
     .nav-tab span.icon { font-size: 1.15rem; margin-bottom: 2px; }
     .nav-tab.active { color: var(--primary); font-weight: 700; }
@@ -209,7 +217,7 @@
     }
     body.dark-mode .card-title { color: var(--primary); }
 
-    /* FIX TRÀN KHUNG: Mặc định trên di động xếp 1 cột, trên màn hình lớn chia cột */
+    /* CHỐNG TRÀN DÒNG TRÊN DI ĐỘNG */
     .grid-2, .grid-3, .grid-4 {
       display: grid;
       grid-template-columns: 1fr;
@@ -375,7 +383,7 @@
     body.dark-mode .modal-header h3 { color: var(--primary); }
     .modal-close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); }
 
-    /* POPUP / BANNER CÀI ĐẶT APP DẠNG NỔI KHÔNG ẢNH HƯỞNG HEADER */
+    /* BANNER POPUP NỔI CÀI ĐẶT APP */
     #pwaInstallFloatingBanner {
       display: none;
       position: fixed;
@@ -407,7 +415,7 @@
 </head>
 <body>
 
-  <!-- HEADER GIỮ NGUYÊN 100% GIAO DIỆN GỐC -->
+  <!-- HEADER NGUYÊN BẢN -->
   <header class="app-header">
     <div class="brand-box">
       <span style="font-size: 1.6rem;">🩺</span>
@@ -421,6 +429,7 @@
     </div>
   </header>
 
+  <!-- MENU DESKTOP -->
   <nav class="nav-desktop">
     <button class="nav-btn active" onclick="switchTab('tab-dashboard')">📊 Tổng Quan</button>
     <button class="nav-btn" onclick="switchTab('tab-calculator')">🧮 Tính Liều</button>
@@ -781,11 +790,11 @@
         </div>
         <div class="grid-4">
           <div class="form-group">
-            <label for="medMinAge">Tuổi Tối Thiểu (tháng):</label>
+            <label for="medMinAge">Tuổi Min (tháng):</label>
             <input type="number" id="medMinAge" placeholder="VD: 3">
           </div>
           <div class="form-group">
-            <label for="medMaxAge">Tuổi Tối Đa (tháng):</label>
+            <label for="medMaxAge">Tuổi Max (tháng):</label>
             <input type="number" id="medMaxAge" placeholder="VD: 144">
           </div>
           <div class="form-group">
@@ -999,7 +1008,7 @@
 
   </div>
 
-  <!-- BOTTOM NAVIGATION CHO MOBILE -->
+  <!-- BOTTOM NAVIGATION ĐẦY ĐỦ 10 CHỨC NĂNG (CUỘN NGANG) -->
   <nav class="nav-bottom">
     <button class="nav-tab active" onclick="switchTab('tab-dashboard')">
       <span class="icon">📊</span>Tổng quan
@@ -1007,18 +1016,33 @@
     <button class="nav-tab" onclick="switchTab('tab-calculator')">
       <span class="icon">🧮</span>Tính liều
     </button>
+    <button class="nav-tab" onclick="switchTab('tab-reconstitution')">
+      <span class="icon">💧</span>Pha thuốc
+    </button>
     <button class="nav-tab" onclick="switchTab('tab-database')">
       <span class="icon">💊</span>Database
     </button>
     <button class="nav-tab" onclick="switchTab('tab-add-med')">
       <span class="icon">➕</span>Thêm thuốc
     </button>
+    <button class="nav-tab" onclick="switchTab('tab-history')">
+      <span class="icon">🕘</span>Lịch sử
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-audit')">
+      <span class="icon">🔍</span>Data Audit
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-ai-assistant')">
+      <span class="icon">🤖</span>AI Assistant
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-backup')">
+      <span class="icon">💾</span>Backup
+    </button>
     <button class="nav-tab" onclick="switchTab('tab-settings')">
       <span class="icon">⚙️</span>Cài đặt
     </button>
   </nav>
 
-  <!-- POPUP / BANNER CÀI ĐẶT DẠNG NỔI (DÀNH CHO CẢ ANDROID & IOS) -->
+  <!-- POPUP NỔI CÀI ĐẶT APP DƯỚI ĐÁY MÀN HÌNH -->
   <div id="pwaInstallFloatingBanner">
     <div style="display:flex; align-items:center; gap:8px;">
       <span style="font-size:1.3rem;">📲</span>
@@ -2571,7 +2595,7 @@
           <div><strong>Tần suất:</strong> ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : 'N/A'}</div>
           <div><strong>Nguồn Dữ Liệu:</strong> ${escapeHtml(m.source?.name || 'CHƯA CÓ NGUỒN')}</div>
           <div><strong>Trạng thái:</strong> <span class="status-badge badge-${m.status}">${m.status}</span></div>
-          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(m.notes)}</div>` : ''}
+          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(med.notes || m.notes)}</div>` : ''}
         </div>
       `;
 
@@ -2654,7 +2678,7 @@
     }
   </script>
 
-  <!-- ĐIỀU KHIỂN CÀI ĐẶT DẠNG POPUP / BANNER NỔI THÔNG MINH CHO CẢ ANDROID & IOS -->
+  <!-- ĐIỀU KHIỂN CÀI ĐẶT DẠNG POPUP NỔI CHO CẢ ANDROID & IOS -->
   <script>
     let pwaDeferredPrompt = null;
     const banner = document.getElementById('pwaInstallFloatingBanner');
@@ -2668,7 +2692,7 @@
     const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const isStandalone = ('standalone' in window.navigator) && (window.navigator.standalone);
 
-    // 1. Android: Bắt sự kiện trước khi hiện prompt
+    // 1. Android / Chrome: Bắt sự kiện cài đặt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       pwaDeferredPrompt = e;
@@ -2677,9 +2701,9 @@
       }
     });
 
-    // 2. iOS Safari: Tự động hiện banner thông báo cài đặt nếu chưa đưa ra Home Screen
+    // 2. iOS Safari: Tự động hiện popup nổi nếu chưa thêm vào Home Screen
     window.addEventListener('load', () => {
-      if (!isStandalone && !sessionStorage.getItem('pwa_banner_dismissed')) {
+      if (isIos && !isStandalone && !sessionStorage.getItem('pwa_banner_dismissed')) {
         banner.style.display = 'flex';
       }
     });
@@ -2717,7 +2741,7 @@
             const body = document.createElement('div');
             body.innerHTML = `
               <div style="font-size:0.92rem; line-height:1.6;">
-                <p style="margin-bottom:8px;">Hộp thoại cài đặt tự động chưa phản hồi, bạn hãy thao tác nhanh:</p>
+                <p style="margin-bottom:8px;">Nếu hộp thoại cài đặt tự động chưa hiện, bạn hãy thao tác nhanh:</p>
                 <ol style="padding-left:20px; margin-bottom:12px;">
                   <li>Nhấn vào biểu tượng <strong>3 dấu chấm (⋮)</strong> ở góc trên bên phải trình duyệt Chrome.</li>
                   <li>Chọn <strong>Cài đặt ứng dụng</strong> (hoặc <strong>Thêm vào màn hình chính</strong>).</li>
