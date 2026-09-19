@@ -1,58 +1,15 @@
-// PWA Registration & Installation Helper
-let deferredPrompt = null;
+// Phát hiện thiết bị iOS và không chạy ở chế độ standalone
+const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  console.log('[PWA] beforeinstallprompt event triggered');
-  
-  const installBtn = document.getElementById('pwa-install-btn');
-  if (installBtn) {
-    installBtn.style.display = 'inline-flex';
-    installBtn.addEventListener('click', promptPwaInstall);
-  } else {
-    showPwaInstallBanner();
-  }
-});
-
-async function promptPwaInstall() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  console.log('[PWA] User choice outcome:', outcome);
-  deferredPrompt = null;
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.remove();
-}
-
-function showPwaInstallBanner() {
-  if (document.getElementById('pwa-install-banner')) return;
-  
-  const banner = document.createElement('div');
-  banner.id = 'pwa-install-banner';
-  banner.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1e293b;color:#fff;padding:12px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:999999;display:flex;align-items:center;gap:12px;font-family:system-ui,-apple-system,sans-serif;font-size:14px;';
-  banner.innerHTML = `
-    <span>📲 Cài đặt ứng dụng này?</span>
-    <button id="pwa-banner-install-btn" style="background:#3b82f6;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:bold;cursor:pointer;">Cài đặt</button>
-    <button id="pwa-banner-close-btn" style="background:transparent;color:#94a3b8;border:none;font-size:16px;cursor:pointer;">✕</button>
+if (isIos && !isInStandaloneMode) {
+  const iosBanner = document.createElement('div');
+  iosBanner.style.cssText = 'position:fixed;bottom:15px;left:15px;right:15px;background:#0f172a;color:#fff;padding:12px 16px;border-radius:12px;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.4);font-size:13px;display:flex;align-items:center;justify-content:space-between;border:1px solid #0284c7;';
+  iosBanner.innerHTML = `
+    <span>📲 Cài đặt trên iPhone: Bấm nút <strong>Chia sẻ (⎋)</strong> trên Safari rồi chọn <strong>"Thêm vào MH chính"</strong>.</span>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#94a3b8;font-size:18px;margin-left:8px;cursor:pointer;">✕</button>
   `;
-  document.body.appendChild(banner);
-
-  document.getElementById('pwa-banner-install-btn').addEventListener('click', promptPwaInstall);
-  document.getElementById('pwa-banner-close-btn').addEventListener('click', () => banner.remove());
-}
-
-window.addEventListener('appinstalled', () => {
-  console.log('[PWA] Application successfully installed!');
-  deferredPrompt = null;
-  const banner = document.getElementById('pwa-install-banner');
-  if (banner) banner.remove();
-});
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
-      .then(reg => console.log('[ServiceWorker] Registered with scope:', reg.scope))
-      .catch(err => console.error('[ServiceWorker] Registration failed:', err));
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.appendChild(iosBanner);
   });
 }
