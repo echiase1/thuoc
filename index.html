@@ -157,7 +157,7 @@
       background: var(--primary-light);
     }
 
-    /* THANH BOTTOM NAVIGATION CUỘN NGANG ĐẦY ĐỦ 10 CHỨC NĂNG */
+    /* BOTTOM NAVIGATION CUỘN NGANG ĐẦY ĐỦ 10 CHỨC NĂNG */
     .nav-bottom {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -217,7 +217,7 @@
     }
     body.dark-mode .card-title { color: var(--primary); }
 
-    /* CHỐNG TRÀN DÒNG TRÊN DI ĐỘNG */
+    /* CHỐNG TRÀN KHUNG: GRID ỨNG DỤNG CHO DI ĐỘNG & MÁY TÍNH */
     .grid-2, .grid-3, .grid-4 {
       display: grid;
       grid-template-columns: 1fr;
@@ -415,7 +415,7 @@
 </head>
 <body>
 
-  <!-- HEADER NGUYÊN BẢN -->
+  <!-- HEADER NGUYÊN BẢN KHÔNG BỊ TRÀN -->
   <header class="app-header">
     <div class="brand-box">
       <span style="font-size: 1.6rem;">🩺</span>
@@ -605,6 +605,18 @@
             <div class="final-result-sub" id="finalResultDaily">-</div>
             <div id="finalResultPhysical" style="margin-top: 8px; font-weight: 700; color: var(--text);"></div>
           </div>
+
+          <!-- KHUNG MỚI: HƯỚNG DẪN CÁCH PHA CHẾ THỰC TẾ CHO BÉ -->
+          <div class="card" id="tabletLiquidPrepArea" style="display: none; border-left: 4px solid var(--accent); margin-top: 16px;">
+            <div class="card-title">
+              <span>🧪 Hướng Dẫn Pha Chế &amp; Chia Liều Thực Tế Cho Bé</span>
+            </div>
+            <div class="alert alert-info" id="prepSummaryGuideline">
+              Đang tính toán phương án pha từ thuốc có sẵn...
+            </div>
+            <div class="calc-step-box" id="prepDetailedSteps"></div>
+          </div>
+
           <div style="display: flex; gap: 8px; margin-top: 14px; justify-content: center; flex-wrap: wrap;">
             <button class="btn btn-secondary" onclick="copyDoseResultToClipboard()">📋 SAO CHÉP KẾT QUẢ</button>
             <button class="btn btn-secondary" onclick="printDoseResult()">🖨 IN PHIẾU TÍNH LIỀU</button>
@@ -1008,7 +1020,7 @@
 
   </div>
 
-  <!-- BOTTOM NAVIGATION ĐẦY ĐỦ 10 CHỨC NĂNG (CUỘN NGANG) -->
+  <!-- BOTTOM NAVIGATION ĐẦY ĐỦ 10 CHỨC NĂNG (CUỘN NGANG MƯỢT MÀ) -->
   <nav class="nav-bottom">
     <button class="nav-tab active" onclick="switchTab('tab-dashboard')">
       <span class="icon">📊</span>Tổng quan
@@ -1042,11 +1054,11 @@
     </button>
   </nav>
 
-  <!-- POPUP NỔI CÀI ĐẶT APP DƯỚI ĐÁY MÀN HÌNH -->
+  <!-- BANNER POPUP CÀI ĐẶT APP NỔI DƯỚI ĐÁY MÀN HÌNH -->
   <div id="pwaInstallFloatingBanner">
     <div style="display:flex; align-items:center; gap:8px;">
       <span style="font-size:1.3rem;">📲</span>
-      <span>Cài đặt <strong>MEDCALC</strong> về điện thoại?</span>
+      <span>Cài đặt ứng dụng <strong>MEDCALC</strong>?</span>
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
       <button class="btn btn-sm btn-success" id="btnFloatingInstallAction" style="padding:5px 12px; font-size:0.8rem;">Cài đặt</button>
@@ -1510,6 +1522,9 @@
 
       document.getElementById('calcOutputArea').style.display = 'block';
 
+      // GỌI HÀM TÍNH TOÁN CÁCH PHA CHẾ TỪ THUỐC CÓ SẴN (VIÊN / ỐNG) THEO CÂN NẶNG
+      window.calculateTabletLiquidPreparation(perDoseMg, isNaN(weight) ? 'không xác định' : weight);
+
       lastCalculatedResult = {
         patientWeight: weight,
         patientAge: document.getElementById('patientAge').value,
@@ -1526,6 +1541,41 @@
       };
     };
 
+    // Hàm quy đổi và hướng dẫn pha chế thực tế từ thuốc có sẵn
+    window.calculateTabletLiquidPreparation = function(targetDoseMg, patientWeight) {
+      const prepArea = document.getElementById('tabletLiquidPrepArea');
+      const summaryBox = document.getElementById('prepSummaryGuideline');
+      const stepsBox = document.getElementById('prepDetailedSteps');
+
+      if (!targetDoseMg || isNaN(targetDoseMg) || targetDoseMg <= 0) {
+        if (prepArea) prepArea.style.display = 'none';
+        return;
+      }
+
+      let htmlSteps = [];
+      const tabletStrength = parseFloat(document.getElementById('calcTabletStrength')?.value) || 0;
+      
+      if (tabletStrength > 0) {
+        const exactTablets = targetDoseMg / tabletStrength;
+        const roundedTablets = Math.round(exactTablets * 2) / 2;
+        htmlSteps.push(`<strong>1. Quy đổi dạng viên nén (${tabletStrength} mg/viên):</strong>`);
+        htmlSteps.push(`- Lượng tính toán: <strong>${exactTablets.toFixed(2)} viên</strong> (Thực tế khuyên dùng: <strong>${roundedTablets} viên</strong>).`);
+      }
+
+      htmlSteps.push(`<br><strong>2. Hướng dẫn pha phân tán từ viên nén / ống tiêm (Cho liều nhỏ chính xác):</strong>`);
+      htmlSteps.push(`- <strong>Bước 1:</strong> Hòa tan 1 đơn vị thuốc sẵn có (ví dụ 1 viên 250mg hoặc 1 ống) vào một thể tích nước cất dễ đong, giả sử là <strong>10 mL</strong>.`);
+      
+      let concMgPerMl = 250 / 10; // 25 mg/mL
+      let volumeToDraw = targetDoseMg / concMgPerMl;
+
+      htmlSteps.push(`- <strong>Bước 2:</strong> Nồng độ dung dịch sau pha phân tán là <strong>25 mg/mL</strong>.`);
+      htmlSteps.push(`- <strong>Bước 3: Dùng xilanh dung dịch hút chính xác thể tích: <span style="color: var(--primary); font-size: 1.05rem;">${volumeToDraw.toFixed(1)} mL</span></strong> hỗn dịch để cho bệnh nhân uống đạt đúng liều chuẩn <strong>${targetDoseMg.toFixed(1)} mg</strong>.`);
+
+      summaryBox.innerHTML = `⚡ <strong>Liều mục tiêu theo cân nặng (${patientWeight} kg):</strong> Cần dùng chính xác <strong>${targetDoseMg.toFixed(2)} mg</strong>.`;
+      stepsBox.innerHTML = htmlSteps.map(line => `<div class="calc-step-line">${line}</div>`).join('');
+      prepArea.style.display = 'block';
+    };
+
     window.resetDoseForm = function() {
       document.getElementById('calcMedSelect').value = '';
       document.getElementById('patientWeight').value = '';
@@ -1539,6 +1589,9 @@
       document.getElementById('calcMaxPerDay').value = '';
       document.getElementById('calcMedMetadataNotice').innerHTML = '';
       document.getElementById('calcOutputArea').style.display = 'none';
+      if (document.getElementById('tabletLiquidPrepArea')) {
+        document.getElementById('tabletLiquidPrepArea').style.display = 'none';
+      }
       lastCalculatedResult = null;
     };
 
@@ -2595,7 +2648,7 @@
           <div><strong>Tần suất:</strong> ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : 'N/A'}</div>
           <div><strong>Nguồn Dữ Liệu:</strong> ${escapeHtml(m.source?.name || 'CHƯA CÓ NGUỒN')}</div>
           <div><strong>Trạng thái:</strong> <span class="status-badge badge-${m.status}">${m.status}</span></div>
-          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(med.notes || m.notes)}</div>` : ''}
+          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(m.notes)}</div>` : ''}
         </div>
       `;
 
@@ -2653,7 +2706,7 @@
     function initApp() {
       safeLoadState();
       
-      const isDark = window.appState.settings?.darkMode;
+      const isDark = window.appState.settings.darkMode;
       if (isDark) document.body.classList.add('dark-mode');
 
       document.getElementById('btnThemeToggle').addEventListener('click', () => {
@@ -2678,7 +2731,7 @@
     }
   </script>
 
-  <!-- ĐIỀU KHIỂN CÀI ĐẶT DẠNG POPUP NỔI CHO CẢ ANDROID & IOS -->
+  <!-- ĐIỀU KHIỂN CÀI ĐẶT PWA DẠNG POPUP NỔI CHO CẢ ANDROID & IOS -->
   <script>
     let pwaDeferredPrompt = null;
     const banner = document.getElementById('pwaInstallFloatingBanner');
@@ -2692,7 +2745,6 @@
     const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const isStandalone = ('standalone' in window.navigator) && (window.navigator.standalone);
 
-    // 1. Android / Chrome: Bắt sự kiện cài đặt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       pwaDeferredPrompt = e;
@@ -2701,18 +2753,15 @@
       }
     });
 
-    // 2. iOS Safari: Tự động hiện popup nổi nếu chưa thêm vào Home Screen
     window.addEventListener('load', () => {
       if (isIos && !isStandalone && !sessionStorage.getItem('pwa_banner_dismissed')) {
         banner.style.display = 'flex';
       }
     });
 
-    // Xử lý khi nhấn nút "Cài đặt" trên Popup
     if (actionBtn) {
       actionBtn.addEventListener('click', async () => {
         if (isIos) {
-          // Hiện modal hướng dẫn thao tác trên Safari
           const body = document.createElement('div');
           body.innerHTML = `
             <div style="font-size:0.92rem; line-height:1.6;">
@@ -2729,7 +2778,6 @@
             { text: "Đã hiểu", className: "btn-primary", onClick: closeModal }
           ]);
         } else {
-          // Xử lý trên Android / Chrome
           if (pwaDeferredPrompt) {
             pwaDeferredPrompt.prompt();
             const { outcome } = await pwaDeferredPrompt.userChoice;
@@ -2757,7 +2805,6 @@
       });
     }
 
-    // Đăng ký Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { scope: './' })
