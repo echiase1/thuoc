@@ -83,12 +83,14 @@
       line-height: 1.5;
       padding-bottom: 75px;
       min-height: 100vh;
+      overflow-x: hidden;
+      width: 100%;
     }
 
     header.app-header {
       background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
       color: #ffffff;
-      padding: 14px 20px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -98,9 +100,9 @@
       box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);
     }
 
-    .brand-box { display: flex; align-items: center; gap: 10px; }
+    .brand-box { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .brand-box h1 { font-size: 1.25rem; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; }
-    .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; }
+    .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     
     .theme-toggle-btn {
       background: rgba(255, 255, 255, 0.2);
@@ -109,12 +111,25 @@
       padding: 6px 12px;
       cursor: pointer;
       color: #ffffff;
-      font-size: 1rem;
+      font-size: 0.88rem;
+      font-weight: 700;
       transition: background 0.2s;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.35); }
 
-    .container { max-width: 920px; margin: 0 auto; padding: 16px; }
+    .btn-install-always {
+      background: #059669;
+      border: 1px solid #34d399;
+      color: #ffffff;
+      display: inline-flex;
+    }
+    .btn-install-always:hover { background: #047857; }
+
+    .container { max-width: 920px; margin: 0 auto; padding: 12px; width: 100%; }
 
     .nav-desktop {
       display: none;
@@ -185,9 +200,11 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 18px;
+      padding: 16px;
       margin-bottom: 16px;
       box-shadow: var(--shadow-md);
+      width: 100%;
+      overflow: hidden;
     }
 
     .card-title {
@@ -201,24 +218,49 @@
       gap: 8px;
       border-bottom: 1px solid var(--primary-light);
       padding-bottom: 8px;
+      flex-wrap: wrap;
     }
     body.dark-mode .card-title { color: var(--primary); }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    /* GRID HỆ THỐNG ĐÃ TỐI ƯU CHỐNG TRÀN */
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      width: 100%;
+    }
 
-    @media (min-width: 620px) {
+    @media (min-width: 600px) {
       .grid-2 { grid-template-columns: repeat(2, 1fr); }
       .grid-3 { grid-template-columns: repeat(3, 1fr); }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 820px) {
       .grid-4 { grid-template-columns: repeat(4, 1fr); }
     }
 
-    .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
-    label { font-size: 0.82rem; font-weight: 700; margin-bottom: 5px; color: var(--text); }
+    .form-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      width: 100%;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: var(--text);
+      word-break: break-word;
+      white-space: normal;
+    }
     
     input[type="text"], input[type="number"], input[type="date"], select, textarea {
-      padding: 10px 14px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
       border: 1.5px solid var(--border);
       border-radius: 8px;
       background: var(--card-bg);
@@ -227,6 +269,12 @@
       font-family: inherit;
       transition: all 0.2s;
     }
+
+    select {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
@@ -252,6 +300,7 @@
     .status-badge {
       display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem;
       font-weight: 800; padding: 3px 9px; border-radius: 12px; text-transform: uppercase;
+      word-break: normal;
     }
     .badge-verified { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
     .badge-needs-review { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
@@ -261,6 +310,7 @@
     .alert {
       padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; font-size: 0.86rem;
       display: flex; flex-direction: column; gap: 4px; line-height: 1.45;
+      word-break: break-word;
     }
     .alert-danger { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger); font-weight: 600; }
     .alert-warning { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning); }
@@ -277,6 +327,7 @@
     .calc-step-box {
       background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px;
       padding: 14px; margin-top: 12px; font-size: 0.88rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      word-break: break-word;
     }
     body.dark-mode .calc-step-box { background: #0a131f; border-color: #1e3a5f; }
     .calc-step-line { margin-bottom: 5px; }
@@ -288,35 +339,37 @@
       border-radius: 14px; padding: 22px; text-align: center; margin-top: 16px;
       box-shadow: 0 6px 20px rgba(2, 132, 199, 0.12);
     }
-    .final-result-val { font-size: 2.1rem; font-weight: 800; color: var(--primary-dark); margin: 6px 0; }
+    .final-result-val { font-size: 2.1rem; font-weight: 800; color: var(--primary-dark); margin: 6px 0; word-break: break-word; }
     body.dark-mode .final-result-val { color: var(--primary); }
-    .final-result-sub { font-size: 1.05rem; font-weight: 700; color: var(--text-muted); }
+    .final-result-sub { font-size: 1.05rem; font-weight: 700; color: var(--text-muted); word-break: break-word; }
 
     .med-item {
       padding: 14px; border: 1px solid var(--card-border); border-radius: 10px;
       margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;
       background: var(--card-bg); transition: transform 0.15s, box-shadow 0.15s;
+      min-width: 0;
+      width: 100%;
     }
     .med-item:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-    .med-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-    .med-name { font-weight: 800; font-size: 1.05rem; color: var(--primary-dark); }
+    .med-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+    .med-name { font-weight: 800; font-size: 1.05rem; color: var(--primary-dark); word-break: break-word; }
     body.dark-mode .med-name { color: var(--primary); }
-    .med-sub { font-size: 0.82rem; color: var(--text-muted); }
+    .med-sub { font-size: 0.82rem; color: var(--text-muted); word-break: break-word; }
     .med-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 
     .diff-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 10px 0; }
-    .diff-table th, .diff-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+    .diff-table th, .diff-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; word-break: break-word; }
     .diff-table th { background: var(--primary-light); color: var(--primary-dark); }
     .diff-old { background: var(--danger-bg); color: var(--danger); text-decoration: line-through; }
     .diff-new { background: var(--success-bg); color: var(--success); font-weight: 700; }
 
-    .toast-container { position: fixed; top: 75px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-container { position: fixed; top: 75px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: calc(100% - 32px); }
     .toast {
       padding: 12px 18px; border-radius: 10px; background: #0f172a; color: #ffffff;
       font-size: 0.88rem; box-shadow: 0 8px 24px rgba(0,0,0,0.25); display: flex;
       align-items: center; gap: 12px; animation: slideIn 0.25s ease-out; max-width: 340px;
     }
-    .toast-undo { background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.78rem; font-weight: bold; }
+    .toast-undo { background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.78rem; font-weight: bold; flex-shrink: 0; }
     @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
     .modal-backdrop {
@@ -330,7 +383,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 14px;
     }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); padding-bottom: 10px; }
-    .modal-header h3 { font-size: 1.15rem; color: var(--primary-dark); font-weight: 800; }
+    .modal-header h3 { font-size: 1.15rem; color: var(--primary-dark); font-weight: 800; word-break: break-word; }
     body.dark-mode .modal-header h3 { color: var(--primary); }
     .modal-close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); }
 
@@ -354,7 +407,9 @@
         <span>Clinical Dose Calculator &amp; Evidence-Based Database</span>
       </div>
     </div>
-    <div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <!-- NÚT CÀI ĐẶT LUÔN HIỂN THỊ -->
+      <button class="theme-toggle-btn btn-install-always" id="pwa-install-btn" title="Cài đặt ứng dụng vào màn hình chính">📲 Cài App</button>
       <button class="theme-toggle-btn" id="btnThemeToggle" title="Đổi chế độ sáng / tối">🌓 Giao diện</button>
     </div>
   </header>
@@ -719,11 +774,11 @@
         </div>
         <div class="grid-4">
           <div class="form-group">
-            <label for="medMinAge">Tuổi Tối Thiểu (tháng):</label>
+            <label for="medMinAge">Tuổi Min (tháng):</label>
             <input type="number" id="medMinAge" placeholder="VD: 3">
           </div>
           <div class="form-group">
-            <label for="medMaxAge">Tuổi Tối Đa (tháng):</label>
+            <label for="medMaxAge">Tuổi Max (tháng):</label>
             <input type="number" id="medMaxAge" placeholder="VD: 144">
           </div>
           <div class="form-group">
@@ -973,9 +1028,6 @@
 
   <!-- PRINT ONLY CONTAINER -->
   <div id="printArea" class="print-only"></div>
-
-  <!-- NẠP THƯ VIỆN ĐĂNG KÝ VÀ CÀI ĐẶT PWA -->
-  <script src="./pwa-install.js" defer></script>
 
   <script>
     const SCHEMA_VERSION = 1;
@@ -1246,7 +1298,7 @@
       (window.appState.medications || []).forEach(m => {
         const opt = document.createElement('option');
         opt.value = m.id;
-        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'}) [${m.status}]`;
+        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'})`;
         select.appendChild(opt);
       });
 
@@ -2558,7 +2610,7 @@
     function initApp() {
       safeLoadState();
       
-      const isDark = window.appState.settings.darkMode;
+      const isDark = window.appState.settings?.darkMode;
       if (isDark) document.body.classList.add('dark-mode');
 
       document.getElementById('btnThemeToggle').addEventListener('click', () => {
@@ -2580,6 +2632,84 @@
       document.addEventListener('DOMContentLoaded', initApp);
     } else {
       initApp();
+    }
+  </script>
+
+  <!-- ĐIỀU KHIỂN CÀI ĐẶT PWA LUÔN HOẠT ĐỘNG CHO ANDROID VÀ IOS -->
+  <script>
+    let pwaDeferredPrompt = null;
+    const pwaBtn = document.getElementById('pwa-install-btn');
+
+    // Bắt sự kiện cài đặt của Android / Chrome
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      pwaDeferredPrompt = e;
+    });
+
+    // Xử lý khi bấm nút "Cài App"
+    if (pwaBtn) {
+      pwaBtn.addEventListener('click', async () => {
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        const isStandalone = ('standalone' in window.navigator) && (window.navigator.standalone);
+
+        if (isStandalone) {
+          alert("Ứng dụng đã được cài đặt và đang chạy ở chế độ App!");
+          return;
+        }
+
+        if (isIos) {
+          // Hướng dẫn chuẩn cho người dùng iOS Safari
+          const body = document.createElement('div');
+          body.innerHTML = `
+            <div style="font-size:0.92rem; line-height:1.6;">
+              <p style="margin-bottom:8px;">Để cài đặt ứng dụng vào màn hình chính iPhone/iPad:</p>
+              <ol style="padding-left:20px; margin-bottom:12px;">
+                <li>Đảm bảo đang mở web bằng trình duyệt <strong>Safari</strong>.</li>
+                <li>Bấm vào biểu tượng <strong>Chia sẻ (⎋)</strong> ở thanh dưới cùng của Safari.</li>
+                <li>Cuộn xuống chọn mục <strong>Thêm vào MH chính (Add to Home Screen)</strong>.</li>
+                <li>Nhấn nút <strong>Thêm</strong> ở góc trên bên phải để hoàn tất.</li>
+              </ol>
+            </div>
+          `;
+          openModal("Cài Đặt Trên iPhone/iPad", body, [
+            { text: "Đã hiểu", className: "btn-primary", onClick: closeModal }
+          ]);
+        } else {
+          // Xử lý cho Android / Chrome
+          if (pwaDeferredPrompt) {
+            pwaDeferredPrompt.prompt();
+            const { outcome } = await pwaDeferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              pwaBtn.style.display = 'none';
+            }
+            pwaDeferredPrompt = null;
+          } else {
+            const body = document.createElement('div');
+            body.innerHTML = `
+              <div style="font-size:0.92rem; line-height:1.6;">
+                <p style="margin-bottom:8px;">Nếu hộp thoại cài đặt tự động chưa hiện, bạn có thể cài thủ công:</p>
+                <ol style="padding-left:20px; margin-bottom:12px;">
+                  <li>Nhấn vào biểu tượng <strong>3 dấu chấm (⋮)</strong> ở góc trên bên phải trình duyệt Chrome.</li>
+                  <li>Chọn <strong>Cài đặt ứng dụng</strong> (hoặc <strong>Thêm vào màn hình chính</strong>).</li>
+                  <li>Xác nhận <strong>Cài đặt</strong> để đưa biểu tượng app ra ngoài màn hình.</li>
+                </ol>
+              </div>
+            `;
+            openModal("Cài Đặt Ứng Dụng", body, [
+              { text: "Đã hiểu", className: "btn-primary", onClick: closeModal }
+            ]);
+          }
+        }
+      });
+    }
+
+    // Đăng ký Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => console.log('[PWA] Service Worker đăng ký thành công:', reg.scope))
+          .catch(err => console.warn('[PWA] Lỗi nạp Service Worker:', err));
+      });
     }
   </script>
 </body>
