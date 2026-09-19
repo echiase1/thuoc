@@ -109,21 +109,10 @@
       padding: 6px 12px;
       cursor: pointer;
       color: #ffffff;
-      font-size: 0.9rem;
+      font-size: 1rem;
       transition: background 0.2s;
     }
     .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.35); }
-
-    .btn-install-header {
-      background: #059669;
-      border: 1px solid #34d399;
-      color: #ffffff;
-      display: none;
-      font-weight: 700;
-      align-items: center;
-      gap: 4px;
-    }
-    .btn-install-header:hover { background: #047857; }
 
     .container { max-width: 920px; margin: 0 auto; padding: 16px; }
 
@@ -365,9 +354,7 @@
         <span>Clinical Dose Calculator &amp; Evidence-Based Database</span>
       </div>
     </div>
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <!-- NÚT CÀI ĐẶT DÙNG CHUNG (TỰ ĐỘNG BẬT KHI KHẢ DỤNG HOẶC TRÊN IOS) -->
-      <button class="theme-toggle-btn btn-install-header" id="pwa-install-btn" title="Cài đặt ứng dụng vào màn hình chính">📲 Cài App</button>
+    <div>
       <button class="theme-toggle-btn" id="btnThemeToggle" title="Đổi chế độ sáng / tối">🌓 Giao diện</button>
     </div>
   </header>
@@ -986,6 +973,9 @@
 
   <!-- PRINT ONLY CONTAINER -->
   <div id="printArea" class="print-only"></div>
+
+  <!-- NẠP THƯ VIỆN ĐĂNG KÝ VÀ CÀI ĐẶT PWA -->
+  <script src="./pwa-install.js" defer></script>
 
   <script>
     const SCHEMA_VERSION = 1;
@@ -2568,7 +2558,7 @@
     function initApp() {
       safeLoadState();
       
-      const isDark = window.appState.settings?.darkMode;
+      const isDark = window.appState.settings.darkMode;
       if (isDark) document.body.classList.add('dark-mode');
 
       document.getElementById('btnThemeToggle').addEventListener('click', () => {
@@ -2590,76 +2580,6 @@
       document.addEventListener('DOMContentLoaded', initApp);
     } else {
       initApp();
-    }
-  </script>
-
-  <!-- BỘ ĐIỀU KHIỂN CÀI ĐẶT PWA CHO ANDROID & IOS -->
-  <script>
-    let pwaDeferredPrompt = null;
-    const pwaBtn = document.getElementById('pwa-install-btn');
-
-    // 1. Xử lý cho Android / Chrome PC
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      pwaDeferredPrompt = e;
-      if (pwaBtn) {
-        pwaBtn.style.display = 'inline-flex';
-        pwaBtn.onclick = async () => {
-          if (!pwaDeferredPrompt) return;
-          pwaDeferredPrompt.prompt();
-          const { outcome } = await pwaDeferredPrompt.userChoice;
-          if (outcome === 'accepted') {
-            pwaBtn.style.display = 'none';
-          }
-          pwaDeferredPrompt = null;
-        };
-      }
-    });
-
-    // 2. Xử lý nhận diện riêng cho iPhone/iPad (Safari)
-    const isIosDevice = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-    const isStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
-
-    if (isIosDevice && !isStandaloneMode) {
-      if (pwaBtn) {
-        pwaBtn.style.display = 'inline-flex';
-        pwaBtn.onclick = () => {
-          const body = document.createElement('div');
-          body.innerHTML = `
-            <p style="font-size:0.95rem; margin-bottom:12px;">Để cài đặt ứng dụng trên iPhone/iPad:</p>
-            <ol style="padding-left:20px; line-height:1.6; font-size:0.9rem;">
-              <li>Mở trang web bằng trình duyệt <strong>Safari</strong>.</li>
-              <li>Bấm vào biểu tượng <strong>Chia sẻ (⎋)</strong> ở thanh dưới màn hình.</li>
-              <li>Cuộn xuống chọn <strong>Thêm vào MH chính (Add to Home Screen)</strong>.</li>
-              <li>Nhấn <strong>Thêm</strong> ở góc trên bên phải.</li>
-            </ol>
-          `;
-          openModal("Cài Đặt Trên iPhone", body, [
-            { text: "Đã hiểu", className: "btn-primary", onClick: closeModal }
-          ]);
-        };
-      }
-
-      // Hiện thông báo hướng dẫn nhanh ở đáy màn hình cho iOS
-      window.addEventListener('load', () => {
-        const iosGuide = document.createElement('div');
-        iosGuide.id = 'iosInstallGuideBanner';
-        iosGuide.style.cssText = 'position:fixed;bottom:70px;left:15px;right:15px;background:#0f172a;color:#fff;padding:12px 14px;border-radius:10px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.4);border:1px solid #0284c7;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;';
-        iosGuide.innerHTML = `
-          <span>📲 <strong>Cài App:</strong> Bấm nút <strong>Chia sẻ (⎋)</strong> trên Safari &gt; <strong>Thêm vào MH chính</strong></span>
-          <button onclick="this.parentElement.remove()" style="background:transparent;border:none;color:#94a3b8;font-size:16px;cursor:pointer;padding-left:8px;">✕</button>
-        `;
-        document.body.appendChild(iosGuide);
-      });
-    }
-
-    // 3. Đăng ký Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js', { scope: './' })
-          .then(reg => console.log('[PWA] Service Worker sẵn sàng:', reg.scope))
-          .catch(err => console.warn('[PWA] Đăng ký Service Worker thất bại:', err));
-      });
     }
   </script>
 </body>
