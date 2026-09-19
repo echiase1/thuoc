@@ -81,7 +81,7 @@
       background-attachment: fixed;
       color: var(--text);
       line-height: 1.5;
-      padding-bottom: 85px;
+      padding-bottom: 75px;
       min-height: 100vh;
       overflow-x: hidden;
       width: 100%;
@@ -217,7 +217,7 @@
     }
     body.dark-mode .card-title { color: var(--primary); }
 
-    /* CHỐNG TRÀN KHUNG: GRID ỨNG DỤNG CHO DI ĐỘNG & MÁY TÍNH */
+    /* CHỐNG TRÀN KHUNG: GRID CHO DI ĐỘNG & MÁY TÍNH */
     .grid-2, .grid-3, .grid-4 {
       display: grid;
       grid-template-columns: 1fr;
@@ -276,6 +276,36 @@
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18);
     }
+
+    /* DROPDOWN TÌM KIẾM THUỐC THÔNG MINH */
+    .custom-dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border: 1.5px solid var(--primary);
+      border-radius: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      margin-top: 4px;
+    }
+    body.dark-mode .custom-dropdown { box-shadow: 0 8px 24px rgba(0,0,0,0.6); border-color: var(--primary-dark); }
+    .custom-dropdown.show { display: block; }
+    .dropdown-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.92rem;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item:hover { background: var(--primary-light); color: var(--primary-dark); }
+    body.dark-mode .dropdown-item:hover { color: #ffffff; }
 
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -415,7 +445,7 @@
 </head>
 <body>
 
-  <!-- HEADER NGUYÊN BẢN KHÔNG BỊ TRÀN -->
+  <!-- HEADER NGUYÊN BẢN -->
   <header class="app-header">
     <div class="brand-box">
       <span style="font-size: 1.6rem;">🩺</span>
@@ -497,11 +527,12 @@
           <button class="btn btn-sm btn-secondary" onclick="resetDoseForm()">Làm mới form</button>
         </div>
         <div class="grid-2">
-          <div class="form-group">
-            <label for="calcMedSelect">💊 Chọn Thuốc Từ Database (Tùy chọn):</label>
-            <select id="calcMedSelect" onchange="onSelectMedicationForCalc(this.value)">
-              <option value="">-- Nhập thông số thủ công tự do --</option>
-            </select>
+          <!-- TÍNH NĂNG TÌM KIẾM THÔNG MINH VÀ TỰ ĐỘNG CHỌN KHI ĐỦ 3 CHỮ -->
+          <div class="form-group" style="position: relative;" id="medSearchWrapper">
+            <label for="calcMedSearchInput">💊 Chọn Thuốc Từ Database (Tùy chọn):</label>
+            <input type="text" id="calcMedSearchInput" placeholder="Nhập để tìm (gõ đủ 3 chữ sẽ tự chọn)..." autocomplete="off" oninput="handleMedSearchInput()" onfocus="handleMedSearchInput()">
+            <input type="hidden" id="calcMedSelect">
+            <div id="calcMedDropdownList" class="custom-dropdown"></div>
           </div>
           <div class="form-group">
             <label for="patientWeight">⚖️ Cân Nặng (kg) <span style="color: var(--danger);">*</span>:</label>
@@ -606,7 +637,7 @@
             <div id="finalResultPhysical" style="margin-top: 8px; font-weight: 700; color: var(--text);"></div>
           </div>
 
-          <!-- KHUNG MỚI: HƯỚNG DẪN CÁCH PHA CHẾ THỰC TẾ CHO BÉ -->
+          <!-- KHUNG HƯỚNG DẪN CÁCH PHA CHẾ THỰC TẾ CHO BÉ -->
           <div class="card" id="tabletLiquidPrepArea" style="display: none; border-left: 4px solid var(--accent); margin-top: 16px;">
             <div class="card-title">
               <span>🧪 Hướng Dẫn Pha Chế &amp; Chia Liều Thực Tế Cho Bé</span>
@@ -802,11 +833,11 @@
         </div>
         <div class="grid-4">
           <div class="form-group">
-            <label for="medMinAge">Tuổi Min (tháng):</label>
+            <label for="medMinAge">Tuổi Tối Thiểu (tháng):</label>
             <input type="number" id="medMinAge" placeholder="VD: 3">
           </div>
           <div class="form-group">
-            <label for="medMaxAge">Tuổi Max (tháng):</label>
+            <label for="medMaxAge">Tuổi Tối Đa (tháng):</label>
             <input type="number" id="medMaxAge" placeholder="VD: 144">
           </div>
           <div class="form-group">
@@ -1020,7 +1051,7 @@
 
   </div>
 
-  <!-- BOTTOM NAVIGATION ĐẦY ĐỦ 10 CHỨC NĂNG (CUỘN NGANG MƯỢT MÀ) -->
+  <!-- BOTTOM NAVIGATION ĐẦY ĐỦ 10 CHỨC NĂNG (CUỘN NGANG) -->
   <nav class="nav-bottom">
     <button class="nav-tab active" onclick="switchTab('tab-dashboard')">
       <span class="icon">📊</span>Tổng quan
@@ -1054,7 +1085,7 @@
     </button>
   </nav>
 
-  <!-- BANNER POPUP CÀI ĐẶT APP NỔI DƯỚI ĐÁY MÀN HÌNH -->
+  <!-- BANNER POPUP NỔI CÀI ĐẶT APP DƯỚI ĐÁY MÀN HÌNH -->
   <div id="pwaInstallFloatingBanner">
     <div style="display:flex; align-items:center; gap:8px;">
       <span style="font-size:1.3rem;">📲</span>
@@ -1344,21 +1375,72 @@
       }
     };
 
-    window.populateCalcMedDropdown = function() {
-      const select = document.getElementById('calcMedSelect');
-      if (!select) return;
-      const currentVal = select.value;
-      select.innerHTML = '<option value="">-- Nhập thông số thủ công tự do --</option>';
+    window.populateCalcMedDropdown = function() {};
 
-      (window.appState.medications || []).forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'})`;
-        select.appendChild(opt);
-      });
+    // TÍNH NĂNG TÌM KIẾM VÀ TỰ ĐỘNG CHỌN KHI GÕ ĐỦ 3 CHỮ
+    window.handleMedSearchInput = function() {
+      const inputEl = document.getElementById('calcMedSearchInput');
+      const dropdown = document.getElementById('calcMedDropdownList');
+      const rawText = inputEl.value;
+      const text = removeVietnameseTones(rawText.trim().toLowerCase());
+      
+      if (text.length === 0) {
+        document.getElementById('calcMedSelect').value = '';
+        document.getElementById('calcMedMetadataNotice').innerHTML = '';
+      }
 
-      if (currentVal) select.value = currentVal;
+      let filtered = window.appState.medications || [];
+      
+      if (text.length > 0) {
+        filtered = filtered.filter(m => {
+          const str = removeVietnameseTones([
+            m.name, m.genericName, m.brandName, (m.aliases || []).join(' ')
+          ].join(' ').toLowerCase());
+          return str.includes(text);
+        });
+      }
+
+      if (text.length >= 3 && filtered.length === 1) {
+         const matchedMed = filtered[0];
+         const currentSelectedId = document.getElementById('calcMedSelect').value;
+         
+         if (currentSelectedId !== matchedMed.id) {
+             document.getElementById('calcMedSelect').value = matchedMed.id;
+             inputEl.value = matchedMed.name; 
+             inputEl.blur();
+             dropdown.classList.remove('show');
+             window.onSelectMedicationForCalc(matchedMed.id);
+             return;
+         }
+      }
+
+      if (filtered.length === 0) {
+        dropdown.innerHTML = '<div style="padding: 10px 14px; color: var(--text-muted); font-size: 0.85rem;">Không tìm thấy thuốc khớp với từ khóa.</div>';
+      } else {
+        dropdown.innerHTML = filtered.map(m => `
+          <div class="dropdown-item" onclick="selectMedFromDropdown('${m.id}', '${escapeHtml(m.name).replace(/'/g, "\\'")}')">
+            <strong>${escapeHtml(m.name)}</strong><br>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(m.genericName || '')}</span>
+          </div>
+        `).join('');
+      }
+      dropdown.classList.add('show');
     };
+
+    window.selectMedFromDropdown = function(medId, medName) {
+      document.getElementById('calcMedSelect').value = medId;
+      document.getElementById('calcMedSearchInput').value = medName;
+      document.getElementById('calcMedDropdownList').classList.remove('show');
+      window.onSelectMedicationForCalc(medId);
+    };
+
+    document.addEventListener('click', function(e) {
+      const wrapper = document.getElementById('medSearchWrapper');
+      const dropdown = document.getElementById('calcMedDropdownList');
+      if (wrapper && !wrapper.contains(e.target) && dropdown) {
+        dropdown.classList.remove('show');
+      }
+    });
 
     window.onSelectMedicationForCalc = function(medId) {
       const noticeBox = document.getElementById('calcMedMetadataNotice');
@@ -1522,7 +1604,7 @@
 
       document.getElementById('calcOutputArea').style.display = 'block';
 
-      // GỌI HÀM TÍNH TOÁN CÁCH PHA CHẾ TỪ THUỐC CÓ SẴN (VIÊN / ỐNG) THEO CÂN NẶNG
+      // HIỂN THỊ HƯỚNG DẪN CÁCH PHA TỪ VIÊN/ỐNG CÓ SẴN THEO CÂN NẶNG
       window.calculateTabletLiquidPreparation(perDoseMg, isNaN(weight) ? 'không xác định' : weight);
 
       lastCalculatedResult = {
@@ -1541,7 +1623,6 @@
       };
     };
 
-    // Hàm quy đổi và hướng dẫn pha chế thực tế từ thuốc có sẵn
     window.calculateTabletLiquidPreparation = function(targetDoseMg, patientWeight) {
       const prepArea = document.getElementById('tabletLiquidPrepArea');
       const summaryBox = document.getElementById('prepSummaryGuideline');
@@ -1565,7 +1646,7 @@
       htmlSteps.push(`<br><strong>2. Hướng dẫn pha phân tán từ viên nén / ống tiêm (Cho liều nhỏ chính xác):</strong>`);
       htmlSteps.push(`- <strong>Bước 1:</strong> Hòa tan 1 đơn vị thuốc sẵn có (ví dụ 1 viên 250mg hoặc 1 ống) vào một thể tích nước cất dễ đong, giả sử là <strong>10 mL</strong>.`);
       
-      let concMgPerMl = 250 / 10; // 25 mg/mL
+      let concMgPerMl = 250 / 10; 
       let volumeToDraw = targetDoseMg / concMgPerMl;
 
       htmlSteps.push(`- <strong>Bước 2:</strong> Nồng độ dung dịch sau pha phân tán là <strong>25 mg/mL</strong>.`);
@@ -1578,6 +1659,7 @@
 
     window.resetDoseForm = function() {
       document.getElementById('calcMedSelect').value = '';
+      document.getElementById('calcMedSearchInput').value = '';
       document.getElementById('patientWeight').value = '';
       document.getElementById('patientAge').value = '';
       document.getElementById('patientHeight').value = '';
@@ -1809,9 +1891,10 @@
 
     window.selectMedForCalculationDirect = function(medId) {
       switchTab('tab-calculator');
-      populateCalcMedDropdown();
-      document.getElementById('calcMedSelect').value = medId;
-      onSelectMedicationForCalc(medId);
+      const med = (window.appState.medications || []).find(m => m.id === medId);
+      if (med) {
+          window.selectMedFromDropdown(medId, med.name);
+      }
     };
 
     window.openAddMedicationForm = function() {
@@ -2731,7 +2814,7 @@
     }
   </script>
 
-  <!-- ĐIỀU KHIỂN CÀI ĐẶT PWA DẠNG POPUP NỔI CHO CẢ ANDROID & IOS -->
+  <!-- ĐIỀU KHIỂN CÀI ĐẶT PWA DẠNG POPUP NỔI DƯỚI ĐÁY MÀN HÌNH -->
   <script>
     let pwaDeferredPrompt = null;
     const banner = document.getElementById('pwaInstallFloatingBanner');
