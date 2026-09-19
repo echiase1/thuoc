@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MEDCALC">
   
-  <!-- ĐƯỜNG DẪN ICON CHUẨN NGANG HÀNG VỚI INDEX.HTML -->
+  <!-- ĐƯỜNG DẪN ICON CHUẨN THƯ MỤC GỐC -->
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
   <link rel="apple-touch-icon" href="./icon-192.png">
 
@@ -90,7 +90,7 @@
     header.app-header {
       background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
       color: #ffffff;
-      padding: 14px 20px;
+      padding: 12px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -104,6 +104,13 @@
     .brand-box h1 { font-size: 1.25rem; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; }
     .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
     .theme-toggle-btn {
       background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -111,11 +118,21 @@
       padding: 6px 12px;
       cursor: pointer;
       color: #ffffff;
-      font-size: 1rem;
+      font-size: 0.88rem;
+      font-weight: 700;
       transition: background 0.2s;
-      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
     .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.35); }
+
+    .btn-install-header {
+      background: #059669;
+      border-color: #34d399;
+      display: none; /* Hiển thị động qua JS khi PWA sẵn sàng */
+    }
 
     .container { max-width: 920px; margin: 0 auto; padding: 12px; width: 100%; }
 
@@ -210,7 +227,7 @@
     }
     body.dark-mode .card-title { color: var(--primary); }
 
-    /* GRID HỆ THỐNG ĐÃ TỐI ƯU TRÁNH BỊ ÉP TRÀN DÒNG TRÊN ĐIỆN THOẠI */
+    /* GRID HỆ THỐNG ĐÃ TỐI ƯU TRÁNH TRÀN DÒNG */
     .grid-2, .grid-3, .grid-4 {
       display: grid;
       grid-template-columns: 1fr;
@@ -394,7 +411,9 @@
         <span>Clinical Dose Calculator &amp; Evidence-Based Database</span>
       </div>
     </div>
-    <div>
+    <div class="header-actions">
+      <!-- NÚT CÀI ĐẶT APP ĐƯỢC TỰ ĐỘNG BẬT KHI ĐỦ ĐIỀU KIỆN -->
+      <button class="theme-toggle-btn btn-install-header" id="pwa-install-btn" title="Cài đặt ứng dụng vào màn hình chính">📲 Cài App</button>
       <button class="theme-toggle-btn" id="btnThemeToggle" title="Đổi chế độ sáng / tối">🌓 Giao diện</button>
     </div>
   </header>
@@ -699,7 +718,7 @@
             <input type="text" id="medBrandName" placeholder="VD: Ospamox, Augmentin">
           </div>
           <div class="form-group">
-            <label for="medAliases">Biệt danh / Aliases (cách nhau dấu phẩy):</label>
+            <label for="medAliases">Biệt danh (cách nhau dấu phẩy):</label>
             <input type="text" id="medAliases" placeholder="VD: Amox, Amoxy">
           </div>
           <div class="form-group">
@@ -759,11 +778,11 @@
         </div>
         <div class="grid-4">
           <div class="form-group">
-            <label for="medMinAge">Tuổi Tối Thiểu (tháng):</label>
+            <label for="medMinAge">Tuổi Min (tháng):</label>
             <input type="number" id="medMinAge" placeholder="VD: 3">
           </div>
           <div class="form-group">
-            <label for="medMaxAge">Tuổi Tối Đa (tháng):</label>
+            <label for="medMaxAge">Tuổi Max (tháng):</label>
             <input type="number" id="medMaxAge" placeholder="VD: 144">
           </div>
           <div class="form-group">
@@ -1013,9 +1032,6 @@
 
   <!-- PRINT ONLY CONTAINER -->
   <div id="printArea" class="print-only"></div>
-
-  <!-- NẠP THƯ VIỆN ĐĂNG KÝ VÀ CÀI ĐẶT PWA -->
-  <script src="./pwa-install.js" defer></script>
 
   <script>
     const SCHEMA_VERSION = 1;
@@ -1286,7 +1302,7 @@
       (window.appState.medications || []).forEach(m => {
         const opt = document.createElement('option');
         opt.value = m.id;
-        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'}) [${m.status}]`;
+        opt.textContent = `${m.name} (${m.genericName || 'Chưa rõ hoạt chất'})`;
         select.appendChild(opt);
       });
 
@@ -2540,7 +2556,7 @@
           <div><strong>Tần suất:</strong> ${m.dose?.frequency ? m.dose.frequency + ' lần/ngày' : 'N/A'}</div>
           <div><strong>Nguồn Dữ Liệu:</strong> ${escapeHtml(m.source?.name || 'CHƯA CÓ NGUỒN')}</div>
           <div><strong>Trạng thái:</strong> <span class="status-badge badge-${m.status}">${m.status}</span></div>
-          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(m.notes)}</div>` : ''}
+          ${m.notes ? `<div><strong>Ghi chú:</strong> ${escapeHtml(med.notes || m.notes)}</div>` : ''}
         </div>
       `;
 
@@ -2622,5 +2638,8 @@
       initApp();
     }
   </script>
+
+  <!-- SCRIPT PWA TƯƠNG THÍCH ĐẦY ĐỦ ĐẶT CUỐI CÙNG -->
+  <script src="./pwa-install.js"></script>
 </body>
 </html>
