@@ -90,7 +90,7 @@
     header.app-header {
       background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%);
       color: #ffffff;
-      padding: 12px 16px;
+      padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -100,9 +100,9 @@
       box-shadow: 0 4px 15px rgba(2, 132, 199, 0.25);
     }
 
-    .brand-box { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-box { display: flex; align-items: center; gap: 10px; }
     .brand-box h1 { font-size: 1.25rem; font-weight: 800; color: #ffffff; letter-spacing: 0.5px; }
-    .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .brand-box span { font-size: 0.75rem; color: #e0f2fe; display: block; }
     
     .theme-toggle-btn {
       background: rgba(255, 255, 255, 0.2);
@@ -111,25 +111,12 @@
       padding: 6px 12px;
       cursor: pointer;
       color: #ffffff;
-      font-size: 0.88rem;
-      font-weight: 700;
+      font-size: 1rem;
       transition: background 0.2s;
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
     }
     .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.35); }
 
-    .btn-install-always {
-      background: #059669;
-      border: 1px solid #34d399;
-      color: #ffffff;
-      display: inline-flex;
-    }
-    .btn-install-always:hover { background: #047857; }
-
-    .container { max-width: 920px; margin: 0 auto; padding: 12px; width: 100%; }
+    .container { max-width: 920px; margin: 0 auto; padding: 16px; width: 100%; }
 
     .nav-desktop {
       display: none;
@@ -200,7 +187,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 16px;
+      padding: 18px;
       margin-bottom: 16px;
       box-shadow: var(--shadow-md);
       width: 100%;
@@ -222,7 +209,7 @@
     }
     body.dark-mode .card-title { color: var(--primary); }
 
-    /* GRID HỆ THỐNG ĐÃ TỐI ƯU CHỐNG TRÀN */
+    /* FIX TRÀN KHUNG: Mặc định trên di động xếp 1 cột, trên màn hình lớn chia cột */
     .grid-2, .grid-3, .grid-4 {
       display: grid;
       grid-template-columns: 1fr;
@@ -235,6 +222,7 @@
       .grid-3 { grid-template-columns: repeat(3, 1fr); }
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
     }
+
     @media (min-width: 820px) {
       .grid-4 { grid-template-columns: repeat(4, 1fr); }
     }
@@ -260,7 +248,7 @@
       width: 100%;
       max-width: 100%;
       min-width: 0;
-      padding: 10px 12px;
+      padding: 10px 14px;
       border: 1.5px solid var(--border);
       border-radius: 8px;
       background: var(--card-bg);
@@ -387,9 +375,29 @@
     body.dark-mode .modal-header h3 { color: var(--primary); }
     .modal-close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); }
 
+    /* POPUP / BANNER CÀI ĐẶT APP DẠNG NỔI KHÔNG ẢNH HƯỞNG HEADER */
+    #pwaInstallFloatingBanner {
+      display: none;
+      position: fixed;
+      bottom: 75px;
+      left: 14px;
+      right: 14px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 16px;
+      border-radius: 12px;
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+      border: 1.5px solid var(--primary);
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+
     @media print {
       body { background: #fff; color: #000; padding: 0; }
-      .app-header, .nav-desktop, .nav-bottom, .btn, .theme-toggle-btn, .toast-container, .modal-backdrop { display: none !important; }
+      .app-header, .nav-desktop, .nav-bottom, .btn, .theme-toggle-btn, .toast-container, .modal-backdrop, #pwaInstallFloatingBanner { display: none !important; }
       .container { max-width: 100%; padding: 0; margin: 0; }
       .card { border: 1px solid #999; box-shadow: none; margin-bottom: 12px; page-break-inside: avoid; }
       .print-only { display: block !important; }
@@ -399,6 +407,7 @@
 </head>
 <body>
 
+  <!-- HEADER GIỮ NGUYÊN 100% GIAO DIỆN GỐC -->
   <header class="app-header">
     <div class="brand-box">
       <span style="font-size: 1.6rem;">🩺</span>
@@ -407,9 +416,7 @@
         <span>Clinical Dose Calculator &amp; Evidence-Based Database</span>
       </div>
     </div>
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <!-- NÚT CÀI ĐẶT LUÔN HIỂN THỊ -->
-      <button class="theme-toggle-btn btn-install-always" id="pwa-install-btn" title="Cài đặt ứng dụng vào màn hình chính">📲 Cài App</button>
+    <div>
       <button class="theme-toggle-btn" id="btnThemeToggle" title="Đổi chế độ sáng / tối">🌓 Giao diện</button>
     </div>
   </header>
@@ -774,11 +781,11 @@
         </div>
         <div class="grid-4">
           <div class="form-group">
-            <label for="medMinAge">Tuổi Min (tháng):</label>
+            <label for="medMinAge">Tuổi Tối Thiểu (tháng):</label>
             <input type="number" id="medMinAge" placeholder="VD: 3">
           </div>
           <div class="form-group">
-            <label for="medMaxAge">Tuổi Max (tháng):</label>
+            <label for="medMaxAge">Tuổi Tối Đa (tháng):</label>
             <input type="number" id="medMaxAge" placeholder="VD: 144">
           </div>
           <div class="form-group">
@@ -1010,6 +1017,18 @@
       <span class="icon">⚙️</span>Cài đặt
     </button>
   </nav>
+
+  <!-- POPUP / BANNER CÀI ĐẶT DẠNG NỔI (DÀNH CHO CẢ ANDROID & IOS) -->
+  <div id="pwaInstallFloatingBanner">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="font-size:1.3rem;">📲</span>
+      <span>Cài đặt <strong>MEDCALC</strong> về điện thoại?</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button class="btn btn-sm btn-success" id="btnFloatingInstallAction" style="padding:5px 12px; font-size:0.8rem;">Cài đặt</button>
+      <button onclick="dismissInstallBanner()" style="background:transparent; border:none; color:#94a3b8; font-size:1.1rem; cursor:pointer; padding:0 4px;">✕</button>
+    </div>
+  </div>
 
   <!-- TOAST CONTAINER -->
   <div class="toast-container" id="toastContainer"></div>
@@ -2635,30 +2654,41 @@
     }
   </script>
 
-  <!-- ĐIỀU KHIỂN CÀI ĐẶT PWA LUÔN HOẠT ĐỘNG CHO ANDROID VÀ IOS -->
+  <!-- ĐIỀU KHIỂN CÀI ĐẶT DẠNG POPUP / BANNER NỔI THÔNG MINH CHO CẢ ANDROID & IOS -->
   <script>
     let pwaDeferredPrompt = null;
-    const pwaBtn = document.getElementById('pwa-install-btn');
+    const banner = document.getElementById('pwaInstallFloatingBanner');
+    const actionBtn = document.getElementById('btnFloatingInstallAction');
 
-    // Bắt sự kiện cài đặt của Android / Chrome
+    function dismissInstallBanner() {
+      if (banner) banner.style.display = 'none';
+      sessionStorage.setItem('pwa_banner_dismissed', 'true');
+    }
+
+    const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const isStandalone = ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    // 1. Android: Bắt sự kiện trước khi hiện prompt
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       pwaDeferredPrompt = e;
+      if (!isStandalone && !sessionStorage.getItem('pwa_banner_dismissed')) {
+        banner.style.display = 'flex';
+      }
     });
 
-    // Xử lý khi bấm nút "Cài App"
-    if (pwaBtn) {
-      pwaBtn.addEventListener('click', async () => {
-        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-        const isStandalone = ('standalone' in window.navigator) && (window.navigator.standalone);
+    // 2. iOS Safari: Tự động hiện banner thông báo cài đặt nếu chưa đưa ra Home Screen
+    window.addEventListener('load', () => {
+      if (!isStandalone && !sessionStorage.getItem('pwa_banner_dismissed')) {
+        banner.style.display = 'flex';
+      }
+    });
 
-        if (isStandalone) {
-          alert("Ứng dụng đã được cài đặt và đang chạy ở chế độ App!");
-          return;
-        }
-
+    // Xử lý khi nhấn nút "Cài đặt" trên Popup
+    if (actionBtn) {
+      actionBtn.addEventListener('click', async () => {
         if (isIos) {
-          // Hướng dẫn chuẩn cho người dùng iOS Safari
+          // Hiện modal hướng dẫn thao tác trên Safari
           const body = document.createElement('div');
           body.innerHTML = `
             <div style="font-size:0.92rem; line-height:1.6;">
@@ -2675,23 +2705,23 @@
             { text: "Đã hiểu", className: "btn-primary", onClick: closeModal }
           ]);
         } else {
-          // Xử lý cho Android / Chrome
+          // Xử lý trên Android / Chrome
           if (pwaDeferredPrompt) {
             pwaDeferredPrompt.prompt();
             const { outcome } = await pwaDeferredPrompt.userChoice;
             if (outcome === 'accepted') {
-              pwaBtn.style.display = 'none';
+              banner.style.display = 'none';
             }
             pwaDeferredPrompt = null;
           } else {
             const body = document.createElement('div');
             body.innerHTML = `
               <div style="font-size:0.92rem; line-height:1.6;">
-                <p style="margin-bottom:8px;">Nếu hộp thoại cài đặt tự động chưa hiện, bạn có thể cài thủ công:</p>
+                <p style="margin-bottom:8px;">Hộp thoại cài đặt tự động chưa phản hồi, bạn hãy thao tác nhanh:</p>
                 <ol style="padding-left:20px; margin-bottom:12px;">
                   <li>Nhấn vào biểu tượng <strong>3 dấu chấm (⋮)</strong> ở góc trên bên phải trình duyệt Chrome.</li>
                   <li>Chọn <strong>Cài đặt ứng dụng</strong> (hoặc <strong>Thêm vào màn hình chính</strong>).</li>
-                  <li>Xác nhận <strong>Cài đặt</strong> để đưa biểu tượng app ra ngoài màn hình.</li>
+                  <li>Xác nhận <strong>Cài đặt</strong> để đưa ứng dụng ra màn hình chính.</li>
                 </ol>
               </div>
             `;
@@ -2707,8 +2737,8 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { scope: './' })
-          .then(reg => console.log('[PWA] Service Worker đăng ký thành công:', reg.scope))
-          .catch(err => console.warn('[PWA] Lỗi nạp Service Worker:', err));
+          .then(reg => console.log('[PWA] Service Worker sẵn sàng:', reg.scope))
+          .catch(err => console.warn('[PWA] Lỗi Service Worker:', err));
       });
     }
   </script>
